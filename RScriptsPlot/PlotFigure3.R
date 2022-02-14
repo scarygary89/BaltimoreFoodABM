@@ -8,7 +8,7 @@ library(ggpubr)
 library(stringr)
 
 mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
-source("ImportFunctions.R")
+source("RScriptsPlot/ImportFunctions.R")
 
 # Import Data from all Scenarios
 BaselineData <- ImportDataForScenarios(paste0(mydir,'/Output'), "Baseline")
@@ -155,6 +155,6 @@ ReductionMap <- ggarrange(
 # windows()
 # print(ReductionMap)
 
-pdf(file="Figure3.pdf", width = 25, height =12)
+pdf(file="RScriptsPlot/OutputPlots/Figure3.pdf", width = 25, height =12)
 print(ReductionMap)
 dev.off()

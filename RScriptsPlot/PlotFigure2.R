@@ -5,7 +5,7 @@ library(data.table)
 library(viridis)
 
 mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
-source("ImportFunctions.R")
+source("RScriptsPlot/ImportFunctions.R")
 
 # Import Data from all Scenarios
 BaselineData <- ImportDataForScenarios(paste0(mydir,'/Output'), "Baseline")
@@ -70,10 +70,10 @@ COVIDMeatConsumption_Poverty <- COVIDLong_Poverty %>% group_by(poverty, zipcode)
 COVIDMeatConsumption_Income <- COVIDLong_Income %>% group_by(income, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 COVIDMeatConsumption_Zipcode <- COVIDLong_Income %>% group_by(zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 
-MoreMeatMeatConsumption_Race <- MoreMeatLong_Race %>% group_by(race, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-MoreMeatMeatConsumption_Poverty <- MoreMeatLong_Poverty %>% group_by(poverty, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-MoreMeatMeatConsumption_Income <- MoreMeatLong_Income %>% group_by(income, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-MoreMeatMeatConsumption_Zipcode <- MoreMeatLong_Income %>% group_by(zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MoreMeatMeatConsumption_Race <- MoreMeatlessOptionsLong_Race %>% group_by(race, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MoreMeatMeatConsumption_Poverty <- MoreMeatlessOptionsLong_Poverty %>% group_by(poverty, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MoreMeatMeatConsumption_Income <- MoreMeatlessOptionsLong_Income %>% group_by(income, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MoreMeatMeatConsumption_Zipcode <- MoreMeatlessOptionsLong_Income %>% group_by(zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 
 ComprehensiveMarketingMeatConsumption_Race <- ComprehensiveMarketingLong_Race %>% group_by(race, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 ComprehensiveMarketingMeatConsumption_Poverty <- ComprehensiveMarketingLong_Poverty %>% group_by(poverty, zipcode) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)

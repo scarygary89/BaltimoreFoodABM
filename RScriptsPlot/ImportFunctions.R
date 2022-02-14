@@ -1,5 +1,7 @@
 library(dplyr)
 library(data.table)
+library(stringr)
+
 
 DetectAndImportSensitivity <- function(filePath, sensParmsList, combo = FALSE){
     outputfiles <- dir(filePath)
