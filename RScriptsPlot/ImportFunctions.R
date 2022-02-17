@@ -2,7 +2,7 @@ library(dplyr)
 library(data.table)
 library(stringr)
 
-
+# Import output data from a parameteric sensitivity analysis
 DetectAndImportSensitivity <- function(filePath, sensParmsList, combo = FALSE){
     outputfiles <- dir(filePath)
     if (combo == TRUE){
@@ -18,6 +18,7 @@ DetectAndImportSensitivity <- function(filePath, sensParmsList, combo = FALSE){
     return(sensitivityList)
 }
 
+# Import model output data from scenario runs
 ImportDataForScenarios <- function(OutDirPath,Scenario){
     dirfiles <- dir(OutDirPath)
     scendirfiles <- dirfiles[str_detect(dirfiles, Scenario)]

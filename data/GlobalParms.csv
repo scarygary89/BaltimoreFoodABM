@@ -17,10 +17,10 @@ LegumesBeansNutsUtilityMultiplier,1
 EggCheeseUtilityMultiplier,1
 OtherUtilityMultiplier,1
 AffordabilityMultiplier,2
-MarketingMultiplier,2
+MarketingMultiplier,4
 HealthMultiplier,1
-PriceMultiplier,1
-AvailabilityMultiplier,2
+PriceMultiplier,4
+AvailabilityMultiplier,6
 MarketingIntensity,0
 MealMass,100
 ProteinProportion,0.2

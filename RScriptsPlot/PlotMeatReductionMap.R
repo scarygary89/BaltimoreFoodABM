@@ -90,7 +90,7 @@ MeatlessMondayMap <- ggplot() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
   scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
-  ggtitle( "Meatless MArketing (Scenario 1)") +
+  ggtitle( "Meatless Marketing (Scenario 1)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -155,6 +155,6 @@ ReductionMap <- ggarrange(
 # windows()
 # print(ReductionMap)
 
-pdf(file="RScriptsPlot/OutputPlots/Figure3.pdf", width = 25, height =12)
+pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 25, height =12)
 print(ReductionMap)
 dev.off()
