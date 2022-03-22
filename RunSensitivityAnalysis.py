@@ -45,7 +45,7 @@ def main(argv):
 	noMarketingTSDict = core.ProcessData.ImportTimeSeriesData('data/MarketingEfforts.csv')
 	meatlessMarketingTSDict = core.ProcessData.ImportTimeSeriesData('data/MeatlessMondayMarketing.csv')
 
-	SensitivityMultiplier = [.25, .5, .75, 1, 1.25, 1.5, 1.75]
+	SensitivityMultiplier = [.2, .4, .6, .8, 1, 1.2, 1.4, 1.6, 1.8, 2]
 	
 	# marketing
 	globalInputDict_market = globalInputDict.copy()

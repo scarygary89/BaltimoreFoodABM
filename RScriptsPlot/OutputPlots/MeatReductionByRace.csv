@@ -1,7 +1,7 @@
-race,variable,Meatless Marketing (Scenario 1),Meat Price Surge (Scenario 2),Increase in Meatless Selection (Scenario 3),Comprehensive Marketing (Scenario 4),COVID-19 (Scenario 5)
-Mexican American,Red Meat,0.18%,0.28%,0.76%,0.91%,-0.11%
-Non-Hispanic Asian,Red Meat,0.18%,0.30%,0.77%,0.89%,-0.15%
-Non-Hispanic Black,Red Meat,0.20%,0.30%,0.67%,0.80%,-0.14%
-Non-Hispanic White,Red Meat,0.18%,0.29%,0.79%,0.92%,-0.15%
-Other Hispanic,Red Meat,0.18%,0.28%,0.75%,0.90%,-0.13%
-Other Race - Including Multi-Racial,Red Meat,0.19%,0.30%,0.75%,0.88%,-0.14%
+"race","variable","Meatless Marketing (Scenario 1)","Meat Price Surge (Scenario 2)","Increase in Meatless Selection (Scenario 3)","Comprehensive Marketing (Scenario 4)"
+"Mexican American","Red Meat",0.0371488286651173,0.0359630608558534,0.102481814544833,0.134614057331936
+"Non-Hispanic Asian","Red Meat",0.0441867827158798,0.038715875009491,0.104675530964702,0.137221982853013
+"Non-Hispanic Black","Red Meat",0.0422696627542023,0.0332304585497193,0.0888827152236941,0.122508816220137
+"Non-Hispanic White","Red Meat",0.0433450409153708,0.039687731847151,0.107360542105118,0.140187982150223
+"Other Hispanic","Red Meat",0.0381707315184157,0.0366764027173359,0.101092962617838,0.13390478512602
+"Other Race - Including Multi-Racial","Red Meat",0.0424404993012973,0.0360067115779482,0.0992726234265838,0.131977275092932

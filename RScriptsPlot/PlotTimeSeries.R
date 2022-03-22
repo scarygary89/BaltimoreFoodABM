@@ -1,6 +1,7 @@
 library(rgdal)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 library(data.table)
 library(viridis)
 library(fishualize)
@@ -124,8 +125,8 @@ TSPlotData <- rbind(
     cbind(PriceSurgeAvgTSdata, Scenario = "Meat Price Surge (Scenario 2)"),
     # cbind(SupplyShockAvgTSdata, Scenario = "SupplyShock"),
     cbind(MoreMeatAvgTSdata, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingAvgTSdata, Scenario = "Comprehensive Marketing (Scenario 4)"),
-    cbind(COVIDAvgTSdata, Scenario = "COVID-19 (Scenario 5)"))  %>%
+    cbind(ComprehensiveMarketingAvgTSdata, Scenario = "Comprehensive Marketing (Scenario 4)"))  %>%
+    # cbind(COVIDAvgTSdata, Scenario = "COVID-19 (Scenario 5)"))  %>%
     mutate(Scenario = factor(Scenario, 
         levels = c(
             "No Change (Baseline)",
@@ -148,6 +149,6 @@ tplotAvg <- ggplot(TSPlotData,
     xlab("Day (Dinner #)") +
     scale_y_continuous(labels = scales::percent)
 
-pdf(file="RScriptsPlot/OutputPlots/ConsumptionTS.pdf", width = 15, height = 12)
+pdf(file="RScriptsPlot/OutputPlots/ConsumptionTS.pdf", width = 12, height = 7)
 print(tplotAvg)
 dev.off()

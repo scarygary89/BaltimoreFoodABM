@@ -6,6 +6,7 @@ library(data.table)
 library(viridis)
 library(ggpubr)
 library(stringr)
+library(reshape2)
 
 mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
 source("RScriptsPlot/ImportFunctions.R")
@@ -26,6 +27,9 @@ SupplyShockLong_Poverty <- createLongData(SupplyShockData,'Poverty')
 COVIDLong_Poverty <- createLongData(COVIDData,'Poverty')
 MoreMeatlessOptionsLong_Poverty <- createLongData(MoreMeatlessOptionsData,'Poverty')
 ComprehensiveMarketingLong_Poverty <- createLongData(ComprehensiveMarketingData,'Poverty')
+
+# Import zip data
+zipdata <- fread('data/SocioDemZip.csv')
 
 # Calculate Mean
 BaseMeatConsumption_Zipcode <- BaseLong_Poverty %>% 
@@ -149,12 +153,62 @@ ReductionMap <- ggarrange(
     PriceSurgeMap,
     MoreMeatMeatlessMap,
     ComprehensiveMarketingMeatMap,
-    COVIDMap,
-          ncol = 3, nrow = 2)
+    # COVIDMap,
+    ncol = 2, nrow = 2)
 
 # windows()
 # print(ReductionMap)
 
-pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 25, height =12)
+pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 16, height =12)
 print(ReductionMap)
 dev.off()
+
+summaryzipdata <- BaltShape@data %>% left_join(zipdata %>% mutate(Zip = as.character(Zip)), by=c("AREA_NMBR" = "Zip"))
+summaryzipdata <- summaryzipdata %>% mutate(
+    LowIncRatio = (`$25k - $55k` + `Less than $25k`) / (`$55k - $75k` + `More than $75k`),
+    BlackProp = `Non-Hispanic Black` / (`Poverty` + `Not In Poverty`)
+  ) %>% 
+  select(AREA_NMBR, LowIncRatio, BlackProp, ComprehensiveMarketingMeat, MeatlessMondayMeat, MoreMeatMeatless, PriceSurgeMeat)
+
+mscatdata <- melt(summaryzipdata , id.vars = c("AREA_NMBR", "LowIncRatio", "BlackProp")) %>% na.omit()
+mscatdata$variable <- as.character(mscatdata$variable)
+mscatdata$variable[mscatdata$variable == 'MeatlessMondayMeat'] <- "Meatless Marketing (Scenario 1)"
+mscatdata$variable[mscatdata$variable == 'PriceSurgeMeat'] <- "Meat Price Surge (Scenario 2)"
+mscatdata$variable[mscatdata$variable == 'MoreMeatMeatless'] <- "Increase in Meatless Option (Scenario 3)"
+mscatdata$variable[mscatdata$variable == 'ComprehensiveMarketingMeat'] <- "Comprehensive Marketing (Scenario 4)"
+mscatdata$variable <- factor(mscatdata$variable, levels = c(
+  "Meatless Marketing (Scenario 1)",
+  "Meat Price Surge (Scenario 2)",
+  "Increase in Meatless Option (Scenario 3)",
+  "Comprehensive Marketing (Scenario 4)"))
+
+scatincome <- ggplot(mscatdata, aes(x = LowIncRatio, y = value, color = variable, group = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  labs(x="Income less than 75k / Income more than 75k", y = "Reduction in meat consumption") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(legend.title=element_blank())
+
+scatblack <- ggplot(mscatdata, aes(x = BlackProp, y = value, color = variable, group = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  labs(x="Non-Hispanic Black Fraction", y = "Reduction in meat consumption") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) + 
+  theme(legend.title=element_blank())
+
+ScatCombo <- ggarrange(
+    scatincome,
+    scatblack,
+    ncol = 1, nrow = 2,
+    common.legend = T,
+    legend = "right",
+    labels = c("A", "B"))
+
+pdf(file="RScriptsPlot/OutputPlots/ScatterPlot.pdf", width = 8, height = 8)
+print(ScatCombo)
+dev.off()
+
+write.csv(summaryzipdata, file = "RScriptsPlot/OutputPlots/ZipData.csv")

@@ -1,5 +1,6 @@
 OldOutput/
 Output/
+Output_Sensitivity/
 BaltCity_Zipcode/
 core/__pycache__/
 test.py
