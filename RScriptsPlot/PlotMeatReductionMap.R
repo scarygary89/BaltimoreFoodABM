@@ -81,12 +81,20 @@ BaltShape <- readOGR("BaltCity_Zipcode/BaltCity_Zipcode.shp")   # Load Shape Fil
 BaltShape@data$id <- rownames(BaltShape@data)                   # Assign unique ID to merge
 BaltShape@data <- BaltShape@data %>%
   full_join(WideData, by=c("AREA_NMBR" = "zipcode"))
+
+# Attach population information
+BaltShape@data <- BaltShape@data %>% left_join(zipdata %>% mutate(Zip = as.character(Zip)), by=c("AREA_NMBR" = "Zip"))
+BaltShape@data <- BaltShape@data %>% mutate(
+    LowIncRatio = (`$25k - $55k` + `Less than $25k`) / (`$55k - $75k` + `More than $75k`),
+    BlackProp = `Non-Hispanic Black` / (`Poverty` + `Not In Poverty`)
+  )
 BaltData <- fortify(BaltShape) %>% left_join(BaltShape@data)     # Convert shape file object to data.frame for ggplot
 labelData <- BaltData %>% group_by(AREA_NMBR) %>% summarize(medLat = mean(lat), medLong =mean(long))
 BaltData <- BaltData %>% left_join(labelData)
 BaltData$medLat[BaltData$AREA_NMBR == '21209'] <- BaltData$medLat[BaltData$AREA_NMBR == '21209'] *1.008
 BaltData$medLong[BaltData$AREA_NMBR == '21224'] <- BaltData$medLong[BaltData$AREA_NMBR == '21224'] *1.003
 BaltData$medLong[BaltData$AREA_NMBR == '21230'] <- BaltData$medLong[BaltData$AREA_NMBR == '21230'] *.9962
+
 
 MeatlessMondayMap <- ggplot() + 
   geom_polygon(data = BaltData, aes(long, y=lat, group=group, fill=MeatlessMondayMeat), color="white") +
@@ -123,7 +131,7 @@ COVIDMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="B", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
   ggtitle( "COVID-19 (Scenario 5)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -148,13 +156,36 @@ ComprehensiveMarketingMeatMap <- ggplot() +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
+BlackFracMap <- ggplot() + 
+  geom_polygon(data = BaltData, aes(long, y=lat, group=group, fill=BlackProp), color="white") +
+  coord_fixed() +
+  geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
+    aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
+  scale_fill_viridis(option="C", name = "Fraction that are \n non-Hispanic Black", labels = scales::percent, direction = -1) +
+  ggtitle( "non-Hispanic Black Population") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+LowIncMap <- ggplot() +
+  geom_polygon(data = BaltData, aes(long, y=lat, group=group, fill=LowIncRatio), color="white") +
+  coord_fixed() +
+  geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
+    aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
+  scale_fill_viridis(option="C", name = "Low Income (<$55k) \n versus High Income", labels = scales::percent, direction = -1) +
+  ggtitle( "Low Income to High Income Ratio") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
 ReductionMap <- ggarrange(
     MeatlessMondayMap,
     PriceSurgeMap,
     MoreMeatMeatlessMap,
     ComprehensiveMarketingMeatMap,
+    BlackFracMap,
+    LowIncMap,
     # COVIDMap,
-    ncol = 2, nrow = 2)
+    ncol = 3, nrow = 2)
 
 # windows()
 # print(ReductionMap)
@@ -163,11 +194,7 @@ pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 16, height =12)
 print(ReductionMap)
 dev.off()
 
-summaryzipdata <- BaltShape@data %>% left_join(zipdata %>% mutate(Zip = as.character(Zip)), by=c("AREA_NMBR" = "Zip"))
-summaryzipdata <- summaryzipdata %>% mutate(
-    LowIncRatio = (`$25k - $55k` + `Less than $25k`) / (`$55k - $75k` + `More than $75k`),
-    BlackProp = `Non-Hispanic Black` / (`Poverty` + `Not In Poverty`)
-  ) %>% 
+summaryzipdata <- BaltShape@data %>% 
   select(AREA_NMBR, LowIncRatio, BlackProp, ComprehensiveMarketingMeat, MeatlessMondayMeat, MoreMeatMeatless, PriceSurgeMeat)
 
 mscatdata <- melt(summaryzipdata , id.vars = c("AREA_NMBR", "LowIncRatio", "BlackProp")) %>% na.omit()
