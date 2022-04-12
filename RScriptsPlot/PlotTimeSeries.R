@@ -48,16 +48,16 @@ ComprehensiveMarketingLong_Poverty <- createLongData(ComprehensiveMarketingData,
 ComprehensiveMarketingLong_Income <- createLongData(ComprehensiveMarketingData,'Income')
 
 # Calculate meat consumption by social groups
-BaseMeatConsumption_Race <- BaseLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-BaseMeatConsumption_Poverty <- BaseLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-BaseMeatConsumption_Income <- BaseLong_Income %>% group_by(income, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+BaseMeatConsumption_Race <- BaseLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+BaseMeatConsumption_Poverty <- BaseLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+BaseMeatConsumption_Income <- BaseLong_Income %>% group_by(income, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 
-MeatlessMondayMeatConsumption_Race <- MeatlessMondayLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-MeatlessMondayMeatConsumption_Poverty <- MeatlessMondayLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-MeatlessMondayMeatConsumption_Income <- MeatlessMondayLong_Income %>% group_by(income, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MeatlessMondayMeatConsumption_Race <- MeatlessMondayLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MeatlessMondayMeatConsumption_Poverty <- MeatlessMondayLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+MeatlessMondayMeatConsumption_Income <- MeatlessMondayLong_Income %>% group_by(income, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 
-PriceSurgeMeatConsumption_Race <- PriceSurgeLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
-PriceSurgeMeatConsumption_Poverty <- PriceSurgeLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+PriceSurgeMeatConsumption_Race <- PriceSurgeLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
+PriceSurgeMeatConsumption_Poverty <- PriceSurgeLong_Poverty %>% group_by(poverty, Meal) %>% summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 PriceSurgeMeatConsumption_Income <- PriceSurgeLong_Income %>% group_by(income, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)
 
 SupplyShockMeatConsumption_Race <- SupplyShockLong_Race %>% group_by(race, Meal) %>% summarize(Meat = mean(Meat), Population = mean(Population)) %>% mutate(MeatPC = Meat/Population)

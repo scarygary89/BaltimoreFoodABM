@@ -34,36 +34,36 @@ zipdata <- fread('data/SocioDemZip.csv')
 # Calculate Mean
 BaseMeatConsumption_Zipcode <- BaseLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(BaseMeat = mean(Meat), Population = mean(Population)) %>%
+    summarize(BaseMeat = mean(Meat + Poultry), Population = mean(Population)) %>%
     mutate(BaseMeatPC = BaseMeat/Population)
 MeatlessMondayMeatConsumption_Zipcode <- MeatlessMondayLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC)
-PriceSurgeMeatConsumption_Zipcode <- PriceSurgeLong_Poverty %>% 
+PriceSurgeMeatConsumption_Zipcode <- PriceSurgeLong_Poverty %>%
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC) 
 SupplyShockMeatConsumption_Zipcode <- SupplyShockLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC)
 COVIDMeatConsumption_Zipcode <- COVIDLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC)
 MoreMeatMeatlessConsumption_Zipcode <- MoreMeatlessOptionsLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC)
 ComprehensiveMarketingMeatConsumption_Zipcode <- ComprehensiveMarketingLong_Poverty %>% 
     group_by(zipcode) %>%
-    summarize(Meat = mean(Meat), Population = mean(Population)) %>%
+    summarize(Meat = mean(Meat + Poultry), Population = mean(Population)) %>%
     left_join(BaseMeatConsumption_Zipcode) %>%
     mutate(MeatPC = Meat/Population, ReductionMeatPC = (BaseMeatPC- MeatPC)/BaseMeatPC)
 
@@ -95,13 +95,13 @@ BaltData$medLat[BaltData$AREA_NMBR == '21209'] <- BaltData$medLat[BaltData$AREA_
 BaltData$medLong[BaltData$AREA_NMBR == '21224'] <- BaltData$medLong[BaltData$AREA_NMBR == '21224'] *1.003
 BaltData$medLong[BaltData$AREA_NMBR == '21230'] <- BaltData$medLong[BaltData$AREA_NMBR == '21230'] *.9962
 
-
+toprange <- .09
 MeatlessMondayMap <- ggplot() + 
   geom_polygon(data = BaltData, aes(long, y=lat, group=group, fill=MeatlessMondayMeat), color="white") +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
   ggtitle( "Meatless Marketing (Scenario 1)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -111,7 +111,7 @@ PriceSurgeMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
   ggtitle( "Meat Price Surge (Scenario 2)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -121,7 +121,7 @@ SupplyShockMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
   ggtitle( "Supply Shock") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -131,8 +131,8 @@ COVIDMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
-  ggtitle( "COVID-19 (Scenario 5)") +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
+  ggtitle("COVID-19 (Scenario 5)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -141,7 +141,7 @@ MoreMeatMeatlessMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
   ggtitle( "Increase in Meatless Option (Scenario 3)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -151,7 +151,7 @@ ComprehensiveMarketingMeatMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="D", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent) +
+  scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
   ggtitle( "Comprehensive Marketing (Scenario 4)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -161,8 +161,8 @@ BlackFracMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="C", name = "Fraction that are \n non-Hispanic Black", labels = scales::percent, direction = -1) +
-  ggtitle( "non-Hispanic Black Population") +
+  scale_fill_viridis(option="mako", name = "Fraction that are \n non-Hispanic Black", labels = scales::percent) +
+  ggtitle( "Non-Hispanic Black Population") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -171,26 +171,41 @@ LowIncMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="C", name = "Low Income (<$55k) \n versus High Income", labels = scales::percent, direction = -1) +
+  scale_fill_viridis(option="mako", name = "Low Income (<$55k) \n versus High Income", labels = scales::percent) +
   ggtitle( "Low Income to High Income Ratio") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
 
-ReductionMap <- ggarrange(
+ScenarioMap <- ggarrange(
     MeatlessMondayMap,
     PriceSurgeMap,
     MoreMeatMeatlessMap,
     ComprehensiveMarketingMeatMap,
+    # COVIDMap,
+    common.legend = T,
+    legend = "right",
+    ncol = 2, nrow = 2)
+
+PopulationMap <- ggarrange(
     BlackFracMap,
     LowIncMap,
     # COVIDMap,
-    ncol = 3, nrow = 2)
+    ncol = 1, nrow = 2)
+
+ReductionMap <- ggarrange(
+  ScenarioMap,
+  PopulationMap,
+  labels = c("A","B"),
+  ncol = 2, nrow = 1,
+  widths = c(2,1),
+    font.label = list(size = 30)
+)
 
 # windows()
 # print(ReductionMap)
 
-pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 16, height =12)
+pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 17, height = 12)
 print(ReductionMap)
 dev.off()
 
