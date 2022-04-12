@@ -364,7 +364,7 @@ barchart_race <- ggplot(mFoodConsData_race,
     scale_fill_viridis(discrete = T) +
     facet_wrap(Scenario~.) +
     theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent)
+    scale_y_continuous(labels = scales::percent, breaks = round(seq(0, 1, by = .1),1))
 
 barchart_poverty <- ggplot(mFoodConsData_poverty,
     aes(x=poverty, y=value, fill = variable, group = variable)) +
@@ -380,7 +380,7 @@ barchart_poverty <- ggplot(mFoodConsData_poverty,
     scale_fill_viridis(discrete = T) +
     facet_wrap(Scenario~.) +
     theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent)
+    scale_y_continuous(labels = scales::percent, breaks = round(seq(0, 1, by = .1),1))
 
 barchart_income <- ggplot(mFoodConsData_income,
     aes(x=income, y=value, fill = variable, group = variable)) +
@@ -396,7 +396,7 @@ barchart_income <- ggplot(mFoodConsData_income,
     scale_fill_viridis(discrete = T) +
     facet_wrap(Scenario~.) +
     theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent)
+    scale_y_continuous(labels = scales::percent, breaks = round(seq(0, 1, by = .1),1))
 
 barchart <- ggplot(mFoodConsData,
     aes(x=Scenario, y=value, fill = variable, group = variable)) +
@@ -411,7 +411,7 @@ barchart <- ggplot(mFoodConsData,
     # scale_color_fish_d(palette="Hypsypops_rubicundus") +
     scale_fill_viridis(discrete = T) +
     theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent)
+    scale_y_continuous(labels = scales::percent, breaks = round(seq(0, 1, by = .1),1))
 
 
 pdf(file="RScriptsPlot/OutputPlots/MealBreakdownByRace.pdf", width = 15, height = 10)
