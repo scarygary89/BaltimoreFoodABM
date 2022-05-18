@@ -171,7 +171,7 @@ LowIncMap <- ggplot() +
   coord_fixed() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
-  scale_fill_viridis(option="mako", name = "Low Income (<$55k) \n versus High Income", labels = scales::percent) +
+  scale_fill_viridis(option="mako", name = "Low Income (<$55k) \n versus High Income") +
   ggtitle( "Low Income to High Income Ratio") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
@@ -205,7 +205,7 @@ ReductionMap <- ggarrange(
 # windows()
 # print(ReductionMap)
 
-pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 17, height = 12)
+pdf(file="RScriptsPlot/OutputPlots/ReductionMap.pdf", width = 18, height = 12)
 print(ReductionMap)
 dev.off()
 
@@ -253,4 +253,29 @@ pdf(file="RScriptsPlot/OutputPlots/ScatterPlot.pdf", width = 8, height = 8)
 print(ScatCombo)
 dev.off()
 
-write.csv(summaryzipdata, file = "RScriptsPlot/OutputPlots/ZipData.csv")
+# Correlation Study
+summaryzipdata_naomit <- na.omit(summaryzipdata)
+write.csv(summaryzipdata_naomit, file = "RScriptsPlot/OutputPlots/ZipData.csv", row.names=F)
+
+correlationList <- data.frame(Scenario = seq(1,4))
+correlationList$BlackProp[1] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(MeatlessMondayMeat))$estimate
+correlationList$BlackProp[2] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(PriceSurgeMeat))$estimate
+correlationList$BlackProp[3] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(MoreMeatMeatless))$estimate
+correlationList$BlackProp[4] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(ComprehensiveMarketingMeat))$estimate
+
+correlationList$LowIncRatio[1] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(MeatlessMondayMeat))$estimate
+correlationList$LowIncRatio[2] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(PriceSurgeMeat))$estimate
+correlationList$LowIncRatio[3] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(MoreMeatMeatless))$estimate
+correlationList$LowIncRatio[4] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(ComprehensiveMarketingMeat))$estimate
+
+correlationList$BlackProp_pvalue[1] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(MeatlessMondayMeat))$p.value
+correlationList$BlackProp_pvalue[2] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(PriceSurgeMeat))$p.value
+correlationList$BlackProp_pvalue[3] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(MoreMeatMeatless))$p.value
+correlationList$BlackProp_pvalue[4] <- cor.test(summaryzipdata_naomit %>% pull(BlackProp), summaryzipdata_naomit %>% pull(ComprehensiveMarketingMeat))$p.value
+
+correlationList$LowIncRatio_pvalue[1] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(MeatlessMondayMeat))$p.value
+correlationList$LowIncRatio_pvalue[2] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(PriceSurgeMeat))$p.value
+correlationList$LowIncRatio_pvalue[3] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(MoreMeatMeatless))$p.value
+correlationList$LowIncRatio_pvalue[4] <- cor.test(summaryzipdata_naomit %>% pull(LowIncRatio), summaryzipdata_naomit %>% pull(ComprehensiveMarketingMeat))$p.value
+
+write.csv(correlationList, file = "RScriptsPlot/OutputPlots/ZCTAAnalysis.csv", row.names=F)

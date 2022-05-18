@@ -1,0 +1,18 @@
+library(rgdal)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(viridis)
+library(fishualize)
+library(reshape2)
+
+mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+source("RScriptsPlot/ImportFunctions.R")
+
+MarketingAvailabilityData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), '_MarketingSensitivity', combo = TRUE)
+PriceAvailiabilityData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), '_PricingSensitivity', combo = TRUE)
+PriceData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'PricingSensitivity')
+SupplyData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'SupplySensitivity')
+AvailabilityData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'AvailabilitySensitivity')
+MarketingData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'MarketingSensitivity')
