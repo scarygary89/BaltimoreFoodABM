@@ -68,10 +68,10 @@ ImportData <- function(filePath) {
     return(list(Race = Racemat, Income = Incomemat, Poverty = Povertymat))
 }
 
-processComboData <- function(term1, term2, dataList) {
-    Ranges1 = c(0.25,0.5, 0.75, 1, 1.25, 1.5, 1.75)
+createSensitivityFileKey <- function(term1, term2) {
+    Ranges1 = c(0.2,0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2)
     if (term2 != "none"){
-        Ranges2 = c(0.25,0.5, 0.75, 1, 1.25, 1.5, 1.75)
+        Ranges2 = c(0.2,0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2)
     } else {
         Ranges2 = c()
     }
@@ -100,162 +100,7 @@ processComboData <- function(term1, term2, dataList) {
             counti <- counti + 1
         }
     }
-
-    counti <- 0
-    for (temp in tempList[,1]){
-        print(temp)
-        tdf <- dataList[[temp]]
-
-        RacematTemp <- tdf[['Race']] %>%
-            mutate(
-                # Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + Grains + Other,
-                Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains,
-                VegPerc = Veg / Total,
-                MeatPerc = Meat / Total,
-                PoultryPerc = Poultry / Total,
-                FishPerc = Fish / Total,
-                LegumesBeansNutsPerc = LegumesBeansNuts / Total,
-                EggCheesePerc = EggCheese / Total,
-                GrainsPerc = Grains / Total) %>%
-            select(
-                VegPerc,
-                MeatPerc,
-                PoultryPerc,
-                FishPerc,
-                LegumesBeansNutsPerc,
-                GrainsPerc,
-                EggCheesePerc,
-                # OtherPerc,
-                Veg,
-                Meat,
-                Poultry,
-                Fish,
-                LegumesBeansNuts,
-                Grains,
-                EggCheese,
-                race,
-                zipcode,
-                Meal,
-                Population
-            ) %>% 
-            melt(id.vars = c('Meal','race','Population')) %>% 
-            mutate(
-                value=as.numeric(value),
-                weightedValue = Population * value
-            )
-        IncomematTemp <- tdf[['Income']] %>%
-            mutate(
-                # Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + Grains + EggCheese Other,
-                Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains ,
-                VegPerc = Veg / Total,
-                MeatPerc = Meat / Total,
-                PoultryPerc = Poultry / Total,
-                FishPerc = Fish / Total,
-                LegumesBeansNutsPerc = LegumesBeansNuts / Total,
-                EggCheesePerc = EggCheese / Total,
-                GrainsPerc = Grains / Total
-                # OtherPerc = Other / Total
-            )%>%
-            select(
-                VegPerc,
-                MeatPerc,
-                PoultryPerc,
-                FishPerc,
-                LegumesBeansNutsPerc,
-                GrainsPerc,
-                EggCheesePerc,
-                # OtherPerc,
-                Veg,
-                Meat,
-                Poultry,
-                Fish,
-                LegumesBeansNuts,
-                Grains,
-                EggCheese,
-
-                income,
-                zipcode,
-                Meal,
-                Population
-            ) %>% 
-            melt(id.vars = c('Meal','income','Population')) %>% 
-            mutate(
-                value=as.numeric(value),
-                weightedValue = Population * value
-            )
-        PovertymatTemp <-  tdf[['Poverty']] %>%
-            mutate(
-                # Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + Grains + Other,
-                Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains ,
-                VegPerc = Veg / Total,
-                MeatPerc = Meat / Total,
-                PoultryPerc = Poultry / Total,
-                FishPerc = Fish / Total,
-                LegumesBeansNutsPerc = LegumesBeansNuts / Total,
-                EggCheesePerc = EggCheese / Total,
-                GrainsPerc = Grains / Total
-                # OtherPerc = Other / Total
-            ) %>%
-            select(
-                VegPerc,
-                MeatPerc,
-                PoultryPerc,
-                FishPerc,
-                LegumesBeansNutsPerc,
-                GrainsPerc,
-                EggCheesePerc,
-                # OtherPerc,
-                Veg,
-                Meat,
-                Poultry,
-                Fish,
-                LegumesBeansNuts,
-                Grains,
-                EggCheese,
-                poverty,
-                zipcode,
-                Meal,
-                Population
-            ) %>% 
-            melt(id.vars = c('Meal','poverty','Population')) %>% 
-            mutate(
-                value=as.numeric(value),
-                weightedValue = Population * value
-            )
-        if (term2 != "none"){
-            RacematTemp <- cbind(RacematTemp, Variable1 = tempList[,2], Variable2 = tempList[,3])
-            IncomematTemp <- cbind(IncomematTemp, Variable1 = tempList[,2], Variable2 = tempList[,3])
-            PovertymatTemp <- cbind(PovertymatTemp, Variable1 = tempList[,2], Variable2 = tempList[,3])
-        } else {
-            RacematTemp <- cbind(RacematTemp, Variable1 = tempList[,2])
-            IncomematTemp <- cbind(IncomematTemp, Variable1 = tempList[,2])
-            PovertymatTemp <- cbind(PovertymatTemp, Variable1 = tempList[,2])
-        }
-
-
-        if (counti < 1) {
-            Racemat <- RacematTemp
-            Incomemat <- IncomematTemp
-            Povertymat <- PovertymatTemp
-        }
-        else {
-            Racemat <- rbind(Racemat, RacematTemp)
-            Incomemat <- rbind(Incomemat, IncomematTemp)
-            Povertymat <- rbind(Povertymat, PovertymatTemp)
-        }
-        counti <- counti + 1
-        
-    }
-    if (term2 != "none"){
-        Racemat <- Racemat %>% rename(!!term1 := "Variable1") %>% rename(!!term2 := "Variable2")
-        Incomemat <- Incomemat %>% rename(!!term1 := "Variable1") %>% rename(!!term2 := "Variable2")
-        Povertymat <- Povertymat %>% rename(!!term1 := "Variable1") %>% rename(!!term2 := "Variable2")
-    } else {
-        Racemat <- Racemat %>% rename(!!term1 := "Variable1")
-        Incomemat <- Incomemat %>% rename(!!term1 := "Variable1")
-        Povertymat <- Povertymat %>% rename(!!term1 := "Variable1")
-    }
-    return(list(Racemat = Racemat, Incomemat = Incomemat, Povertymat = Povertymat))
+    return(tempList)
 }
 
 createLongData <- function(inputData, series){
