@@ -121,19 +121,19 @@ ComprehensiveMarketingAvgTSdata <- ComprehensiveMarketingMeatConsumption_Poverty
 
 TSPlotData <- rbind(
     cbind(BaseAvgTSdata, Scenario = "No Change (Baseline)"),
-    cbind(MeatlessMondayAvgTSdata, Scenario = "Meatless Marketing (Scenario 1)"),
-    cbind(PriceSurgeAvgTSdata, Scenario = "Meat Price Surge (Scenario 2)"),
+    cbind(MeatlessMondayAvgTSdata, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeAvgTSdata, Scenario = "Increase in meat pricing (Scenario 2)"),
     # cbind(SupplyShockAvgTSdata, Scenario = "SupplyShock"),
-    cbind(MoreMeatAvgTSdata, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingAvgTSdata, Scenario = "Comprehensive Marketing (Scenario 4)"))  %>%
+    cbind(MoreMeatAvgTSdata, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingAvgTSdata, Scenario = "Combined non-meat push (Scenario 4)"))  %>%
     # cbind(COVIDAvgTSdata, Scenario = "COVID-19 (Scenario 5)"))  %>%
     mutate(Scenario = factor(Scenario, 
         levels = c(
             "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)',
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)',
             'COVID-19 (Scenario 5)')))
 
 

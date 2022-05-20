@@ -3,11 +3,13 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(data.table)
-library(viridis)
 library(fishualize)
 library(reshape2)
+library(ggpubr)
 
-mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+# mydir <- 'C:/Users/aadam/Desktop/TestABM'
+mydir <- "C:/Users/GaryLin/Dropbox/MarylandFoodModel/ABM/BaltimoreFoodABM/"
+setwd(mydir)
 source("RScriptsPlot/ImportFunctions.R")
 
 MarketingAvailabilityData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), '_MarketingSensitivity', combo = TRUE)
@@ -17,401 +19,142 @@ SupplyData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'S
 AvailabilityData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'AvailabilitySensitivity')
 MarketingData <- DetectAndImportSensitivity(paste0(mydir,"/Output_Sensitivity"), 'MarketingSensitivity')
 
-MarketingAvailabilityKey <- createSensitivityFileKey("Availability", "Marketing")
-PriceAvailabilityKey <- createSensitivityFileKey("Availability", "Pricing")
-PriceKey <- createSensitivityFileKey('Pricing', "none")
-SupplyKey <- createSensitivityFileKey('Supply', "none")
-AvailabilityKey <- createSensitivityFileKey('Availability', "none")
-MarketingKey <- createSensitivityFileKey('Marketing', "none")
+MarketingAvailabilityMat <- createLongDataSensitivtyAnalysis("Availability", "Marketing", MarketingAvailabilityData, 'Poverty')
+PriceAvailabilityMat <- createLongDataSensitivtyAnalysis("Availability", "Pricing", PriceAvailiabilityData, "Poverty")
+PriceMat <- createLongDataSensitivtyAnalysis('Pricing', "none", PriceData, "Poverty")
+SupplyMat <- createLongDataSensitivtyAnalysis('Supply', "none", SupplyData, "Poverty")
+AvailabilityMat <- createLongDataSensitivtyAnalysis('Availability', "none", AvailabilityData, "Poverty")
+MarketingMat <- createLongDataSensitivtyAnalysis('Marketing', "none", MarketingData, "Poverty")
 
 
-
-CalculateWeightedAverages <- function(longDataSet, stratifyingFeature) {
-    
-    FoodCons <- longDataSet %>% group_by(!!!rlang::syms(c(stratifyingFeature, "Scenario", "zipcode"))) %>%
+calculatePercentage <- function(InputMat, terms){
+    MeatPercSummary <- InputMat %>%
         filter(Meal >= 50) %>%
+        group_by(!!!rlang::syms(terms), poverty) %>% 
         summarize(
-            Meat = sum(Meat),
-            Veg = sum(Veg),
+            AllMeat = sum(Meat + Poultry),
+            RedMeat = sum(Meat),
             Poultry = sum(Poultry),
+            Veg = sum(Veg),
             Fish = sum(Fish),
             LegumesBeansNuts = sum(LegumesBeansNuts),
             EggCheese = sum(EggCheese),
             Grains = sum(Grains),
-            Population = mean(Population)
+            TotalCons = sum(Veg + RedMeat + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains),
+            Population = mean(Population),
+            weightedRedMeatPerc = RedMeat / TotalCons * Population,
+            weightedPoultryPerc = Poultry / TotalCons * Population,
+            weightedAllMeatPerc = AllMeat / TotalCons * Population,
+            weightedVegPerc = Veg / TotalCons * Population,
+            weightedFishPerc = Fish / TotalCons * Population,
+            weightedLegumesBeansNutsPerc = LegumesBeansNuts / TotalCons * Population,
+            weightedEggCheesePerc = EggCheese / TotalCons * Population,
+            weightedGrainsPerc = Grains / TotalCons * Population
         ) %>%
-        group_by(!!!rlang::syms(c(stratifyingFeature, "zipcode"))) %>%
+        group_by(!!!rlang::syms(terms)) %>% 
         summarize(
-            Meat = mean(Meat),
-            Veg = mean(Veg),
-            Poultry = mean(Poultry),
-            Fish = mean(Fish),
-            LegumesBeansNuts = mean(LegumesBeansNuts),
-            EggCheese = mean(EggCheese),
-            Grains = mean(Grains),
-            Population = mean(Population)
-        ) %>%
+            RedMeatPerc = sum(weightedRedMeatPerc) / sum(Population),
+            PoultryPerc = sum(weightedPoultryPerc) / sum(Population),
+            AllMeatPerc = sum(weightedAllMeatPerc) / sum(Population),
+            VegPerc = sum(weightedVegPerc) / sum(Population),
+            FishPerc = sum(weightedFishPerc) / sum(Population),
+            LegumesBeansNutsPerc = sum(weightedLegumesBeansNutsPerc) / sum(Population),
+            EggCheesePerc = sum(weightedEggCheesePerc) / sum(Population),
+            GrainsPerc = sum(weightedGrainsPerc) / sum(Population)
+        ) 
+}
+
+
+
+
+MarketingAvailabilityPerc <- calculatePercentage(MarketingAvailabilityMat, c("Availability", "Marketing")) %>% 
+    ungroup() %>%
+    mutate(AllMeatPerc_base = (AllMeatPerc - AllMeatPerc[Availability == 1 & Marketing == 1]) / AllMeatPerc[Availability == 1 & Marketing == 1])
+PriceAvailabilityPerc <- calculatePercentage(PriceAvailabilityMat, c("Availability", "Pricing")) %>%
+    ungroup() %>%
+    mutate(AllMeatPerc_base = (AllMeatPerc - AllMeatPerc[Availability == 1 & Pricing == 1]) / AllMeatPerc[Availability == 1 & Pricing == 1])
+
+MarketingAvailabilityPlot <- ggplot(MarketingAvailabilityPerc, aes(Availability, Marketing, fill= AllMeatPerc_base)) + 
+  geom_tile() +
+  theme_minimal() +
+  labs(title = "Two-way Sensitivity Analysis \n(Scenario 4)", x = "Parameter Multiplier (Increase in non-meat options)", y = "Parameter Multiplier (Non-meat marketing campaign)") +
+  scale_fill_fish(
+    option = 'Cirrhilabrus_solorensis', 
+    labels = scales::percent, name = "Relative Impact in \nMeat Consumption"
+  ) +
+  theme( plot.margin = margin(0.5,0.5,0.5,0.5, "cm"))
+
+PriceAvailabilityPlot <- ggplot(PriceAvailabilityPerc, aes(Availability, Pricing, fill= AllMeatPerc_base)) + 
+  geom_tile() +
+  theme_minimal() +
+  labs(title = "Two-way Sensitivity Analysis", x = "Parameter Multiplier (Availability)", y = "Parameter Multiplier  (Pricing)") +
+  scale_fill_fish(option = 'Cirrhilabrus_solorensis', labels = scales::percent, name = "Relative Impact in \nMeat Consumption")
+  
+CalculatedRelativePercentChange <- function(InputMat){
+    BasePercSummary <- InputMat %>%
         mutate(
-            WeightedMeat = Meat * Population,
-            WeightedVeg = Veg * Population,
-            WeightedPoultry = Poultry * Population,
-            WeightedFish = Fish * Population,
-            WeightedLegumesBeansNuts = LegumesBeansNuts * Population,
-            WeightedEggCheese = EggCheese * Population,
-            WeightedGrains = Grains * Population
-        ) %>% 
-        group_by(!!!rlang::syms(stratifyingFeature)) %>%
-        summarize(
-            Meat = sum(WeightedMeat) / sum(Population),
-            Veg = sum(WeightedVeg) / sum(Population),
-            Poultry = sum(WeightedPoultry) / sum(Population),
-            Fish = sum(WeightedFish) / sum(Population),
-            LegumesBeansNuts = sum(WeightedLegumesBeansNuts) / sum(Population),
-            EggCheese = sum(WeightedEggCheese) / sum(Population),
-            Grains = sum(WeightedGrains) / sum(Population),
-            Population = sum(Population)
+            RedMeatPerc_base = (RedMeatPerc - RedMeatPerc[SensitivityMult == 1]) / RedMeatPerc[SensitivityMult == 1],
+            PoultryPerc_base = (PoultryPerc - PoultryPerc[SensitivityMult == 1]) / PoultryPerc[SensitivityMult == 1],
+            AllMeatPerc_base = (AllMeatPerc - AllMeatPerc[SensitivityMult == 1]) / AllMeatPerc[SensitivityMult == 1],
+            VegPerc_base = (VegPerc - VegPerc[SensitivityMult == 1]) / VegPerc[SensitivityMult == 1],
+            FishPerc_base = (FishPerc - FishPerc[SensitivityMult == 1]) / FishPerc[SensitivityMult == 1],
+            LegumesBeansNutsPerc_base = (LegumesBeansNutsPerc - LegumesBeansNutsPerc[SensitivityMult == 1]) / LegumesBeansNutsPerc[SensitivityMult == 1],
+            EggCheesePerc_base = (EggCheesePerc - EggCheesePerc[SensitivityMult == 1]) / EggCheesePerc[SensitivityMult == 1],
+            GrainsPerc_base = (GrainsPerc - GrainsPerc[SensitivityMult == 1]) / GrainsPerc[SensitivityMult == 1]
+
         )
-    return(FoodCons)
+    return(BasePercSummary)
 }
 
 
-# Average timeseries stratified by demographics
-# Comprehensive Marketing
-mAvgmat_cm <- MarketingAvailabilityMat[['Racemat']] %>%
-    group_by(variable, Availability, Marketing) %>%
-    summarize(value = sum(weightedValue)/sum(Population))
+PricePerc <- calculatePercentage(PriceMat, c('Pricing')) %>% rename(SensitivityMult = Pricing) %>% CalculatedRelativePercentChange() 
+SupplyPerc <- calculatePercentage(SupplyMat, c('Supply')) %>% rename(SensitivityMult = Supply) %>% CalculatedRelativePercentChange()
+AvailabilityPerc <- calculatePercentage(AvailabilityMat, c('Availability')) %>% rename(SensitivityMult = Availability) %>% CalculatedRelativePercentChange()
+MarketingPerc <- calculatePercentage(MarketingMat, c('Marketing')) %>% rename(SensitivityMult = Marketing) %>% CalculatedRelativePercentChange()
 
-heat_Avg_cm <- ggplot(mAvgmat_cm %>% filter(variable == 'MeatPerc'), 
-    aes(Availability, Marketing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    theme_bw()
+singleSensitivityData <- rbind(
+    # cbind(SupplyPerc, Parameter = "SupplyShortage"),
+    cbind(MarketingPerc, Parameter = "Non-meat marketing campaign \n(Scenario 1)"),
+    cbind(PricePerc, Parameter = "Increase in meat pricing \n(Scenario 2)"),
+    cbind(AvailabilityPerc, Parameter = "Increase in non-meat options \n(Scenario 3)")
+    ) 
 
-windows()
-print(heat_Avg_cm)
+SingleParmPlot <- ggplot(singleSensitivityData, aes(x = SensitivityMult, y = AllMeatPerc_base, fill = Parameter)) +
+  geom_bar(stat="identity") +
+  facet_grid(Parameter ~.)
 
-mAvgRacemat_cm <- MarketingAvailabilityMat[['Racemat']] %>%
-    group_by(race, variable, Availability, Marketing) %>%
-    summarize(value = sum(weightedValue)/sum(Population))
+# windows()
+# print(SingleParmPlot)
 
-heat_Race_cm <- ggplot(mAvgRacemat_cm %>% filter(variable == 'MeatPerc'), aes(Availability, Marketing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(race~.) +
-    theme_bw()
-windows()
-print(heat_Race_cm)
-
-
-mAvgIncomemat_cm <- MarketingAvailabilityMat[['Incomemat']] %>%
-    group_by(income, variable, Availability, Marketing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Income_cm <- ggplot(mAvgIncomemat_cm %>% filter(variable == 'MeatPerc'), aes(Availability, Marketing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(income~.) +
-    theme_bw()
-windows()
-print(heat_Income_cm)
-
-
-
-mAvgPovertymat_cm <- MarketingAvailabilityMat[['Povertymat']] %>%
-    group_by(poverty, variable, Availability, Marketing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Poverty_cm <- ggplot(mAvgPovertymat_cm %>% filter(variable == 'MeatPerc'), aes(Availability, Marketing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(poverty~.) +
-    theme_bw()
-windows()
-print(heat_Poverty_cm)
-
-
-# COVID 
-mAvgmat_covid <- PriceAvailabilityMat[['Racemat']] %>%
-    group_by(variable, Availability, Pricing) %>%
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Avg_covid <- ggplot(mAvgmat_covid %>% filter(variable == 'MeatPerc'), 
-    aes(Availability, Pricing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    theme_bw()
-
-windows()
-print(heat_Avg_covid)
-
-
-mAvgRacemat_covid <- PriceAvailabilityMat[['Racemat']] %>%
-    group_by(race, variable, Availability, Pricing) %>%
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Race_covid <- ggplot(mAvgRacemat_covid %>% filter(variable == 'MeatPerc'), aes(Availability, Pricing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(race~.) +
-    theme_bw()
-windows()
-print(heat_Race_covid)
-
-
-mAvgIncomemat_covid <- PriceAvailabilityMat[['Incomemat']] %>%
-    group_by(income, variable, Availability, Pricing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Income_covid <- ggplot(mAvgIncomemat_covid %>% filter(variable == 'MeatPerc'), aes(Availability, Pricing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(income~.) +
-    theme_bw()
-windows()
-print(heat_Income_covid)
-
-
-
-mAvgPovertymat_covid <- PriceAvailabilityMat[['Povertymat']] %>%
-    group_by(poverty, variable, Availability, Pricing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population))
-
-heat_Poverty_covid <- ggplot(mAvgPovertymat_covid %>% filter(variable == 'MeatPerc'), aes(Availability, Pricing, fill= value)) + 
-    geom_tile() + 
-    scale_fill_fish(option="Hypsypops_rubicundus") +
-    facet_wrap(poverty~.) +
-    theme_bw()
-windows()
-print(heat_Poverty_covid)
-
-
-#######################################################################
-# Time series plot
-# Create data import function
-ImportData <- function(filePath){
-    setwd(filePath)
-    filesList <- dir()
-    alldata <- lapply(filesList, function(x) fread(x))
-    names(alldata) <- filesList
-
-    racedata <- alldata[grepl("Race",names(alldata))]
-    races <- sub(".csv", "",sub(".*Race_", "", names(racedata)))
-    racezips <- substring(sub(".*FoodConsumption", "", names(racedata)),1,5)
-    Racemat <- do.call(rbind, lapply(1:length(racedata), function(x) {
-        df <- racedata[[x]]
-        df <- cbind(df, race = races[x], zipcode = racezips[x])
-        colnames(df)[1] <- "Meal"
-        return(df)
-    }))
-
-    incomedata <- alldata[grepl("Income",names(alldata))]
-    incomes <- sub(".csv", "",sub(".*Income_", "", names(incomedata)))
-    incomezips <- substring(sub(".*FoodConsumption", "", names(incomedata)),1,5)
-    Incomemat <- do.call(rbind, lapply(1:length(incomedata), function(x) {
-        df <- incomedata[[x]]
-        df <- cbind(df, income = incomes[x], zipcode = incomezips[x])
-        colnames(df)[1] <- "Meal"
-        return(df)
-    }))
-
-    povertydata <- alldata[grepl("Poverty",names(alldata))]
-    povertys <- sub(".csv", "",sub(".*Poverty_", "", names(povertydata)))
-    povertyzips <- substring(sub(".*FoodConsumption", "", names(povertydata)),1,5)
-    Povertymat <- do.call(rbind, lapply(1:length(povertydata), function(x) {
-        df <- povertydata[[x]]
-        df <- cbind(df, poverty = povertys[x], zipcode = povertyzips[x])
-        colnames(df)[1] <- "Meal"
-        return(df)
-    }))
-    return(list(Race = Racemat, Income = Incomemat, Poverty = Povertymat))
-}
-
-# Import Data from all Scenarios
-BaselineData <- ImportData(paste0(mydir, "/Baseline"))
-BaselineDatamat <- cbind(BaselineData[['Poverty']], scenario = "Baseline") %>%
-    # rbind(cbind(MeatlessMondayData[['Combo']], scenario = "Combo")) %>%
-    mutate(
-        # Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + Grains + Other,
-        Total = Veg + Meat + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains,
-        VegPerc = Veg / Total,
-        MeatPerc = Meat / Total,
-        PoultryPerc = Poultry / Total,
-        FishPerc = Fish / Total,
-        LegumesBeansNutsPerc = LegumesBeansNuts / Total,
-        EggCheesePerc = EggCheese / Total,
-        GrainsPerc = Grains / Total
-        # OtherPerc = Other / Total
-    )  %>%
-    select(
-        VegPerc,
-        MeatPerc,
-        PoultryPerc,
-        FishPerc,
-        LegumesBeansNutsPerc,
-        GrainsPerc,
-        EggCheesePerc,
-        Population,
-        poverty,
-        zipcode,
-        Meal,
-        scenario
+onewayplot <- ggplot(singleSensitivityData, aes(x = SensitivityMult, y = AllMeatPerc_base, fill = SensitivityMult)) +
+    coord_flip() + 
+    geom_bar(stat = "identity", position = "identity", width = 0.525) +
+    facet_grid(Parameter~.) +
+    scale_fill_fish_d(option = 'Ostracion_whitleyi') +
+    scale_y_continuous(labels = scales::percent) +
+    theme_bw() + 
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = "One-way Sensitivity Analysis \n(Scenarios 1-3)", x = "Parameter Multiplier", y = "Relative Impact in Meat Consumption") +
+    theme(legend.position="none", 
+        axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5, size = 10), 
+        plot.margin = margin(0.5,0.5,0.5,0.5, "cm")
     )
-BaselineMat <- melt(BaselineDatamat, id.vars = c('Meal','poverty','Population'))  %>% 
-            mutate(
-                value=as.numeric(value),
-                weightedValue = Population * value
-            )
 
-mAvgmat <- cbind(BaselineMat %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = "No Change (Baseline)") %>%
-    rbind(cbind(MarketingAvailabilityMat[['Povertymat']] %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = 'Comprehensive Marketing (Scenario 4)')) %>%
-    rbind(cbind(PriceAvailabilityMat[['Povertymat']] %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = 'COVID-19 (Scenario 5)')) %>%
-    rbind(cbind(PriceMat[['Povertymat']] %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = 'Meat Price Surge (Scenario 2)')) %>%
-    # rbind(cbind(SupplyMat[['Povertymat']] %>% 
-    #     select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-    #     Scenario = 'Supply Shortage')) %>%
-    rbind(cbind(AvailabilityMat[['Povertymat']] %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = 'Increase in Meatless Selection (Scenario 3)')) %>%
-    rbind(cbind(MarketingMat[['Povertymat']] %>% 
-        select("Meal", "poverty", "Population", "variable", "weightedValue"), 
-        Scenario = 'Meatless Marketing (Scenario 1)')) %>%
-    group_by(variable, Scenario, Meal) %>%
-    summarize(value = sum(weightedValue)/sum(Population)) %>% 
-    mutate(Scenario = factor(Scenario, 
-        levels = c(
-            "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)',
-            'COVID-19 (Scenario 5)')),variable = as.character(variable))
-            # 'Supply Shortage'
+pdf(file="RScriptsPlot/OutputPlots/OneWaySensitivityPlot.pdf", width = 7, height = 7)
+print(onewayplot)
+dev.off()
 
 
-tplotAvg <- ggplot(mAvgmat %>% filter(variable == 'MeatPerc'),
-    aes(x = Meal, y = value, group = Scenario, color = Scenario)) +
-    geom_point(aes(color = Scenario)) +
-    geom_line(aes(color = Scenario)) +
-    # stat_smooth(aes(color = Scenario, fill = Scenario), method = "loess") +
-    geom_vline(color = 'red', xintercept = 50, linetype = "longdash") +
-    theme_bw() +
-    scale_color_fish_d(option="Cirrhilabrus_solorensis") + 
-    ylab("Average Meat Consumption") +
-    xlab("Day (Dinner #)")  +
-    scale_y_continuous(labels = scales::percent) 
+SensitivityAnalysisPlot <- ggarrange(
+  onewayplot,
+  MarketingAvailabilityPlot,
+  labels = c("A","B"),
+  ncol = 2, nrow = 1,
+#   widths = c(1,1),
+    font.label = list(size = 20)
+)
 
-windows()
-print(tplotAvg)
+pdf(file="RScriptsPlot/OutputPlots/ScenariosSensitivityPlot.pdf", width = 15, height = 7)
+print(SensitivityAnalysisPlot)
+dev.off()
 
-mAvgmat$variable[mAvgmat$variable == "MeatPerc"] <- "Red Meat"
-mAvgmat$variable[mAvgmat$variable == "PoultryPerc"] <- "Poultry"
-mAvgmat$variable[mAvgmat$variable == "FishPerc"] <- "Fish"
-mAvgmat$variable[mAvgmat$variable == "VegPerc"] <- "Vegetables"
-mAvgmat$variable[mAvgmat$variable == "LegumesBeansNutsPerc"] <- "Legumes, Beans, & Nuts"
-mAvgmat$variable[mAvgmat$variable == "EggCheesePerc"] <- "Eggs & Cheese"
-mAvgmat$variable[mAvgmat$variable == "GrainsPerc"] <- "Grains"
-
-mAvgmat_bar <- mAvgmat %>% ungroup() %>%
-    filter(!variable %in% c("zipcode", "scenario")) %>%
-    group_by(variable, Scenario) %>%
-    summarize(value = mean(value))  
-    
-mAvgmat_bar$variable = factor(mAvgmat_bar$variable, 
-        levels = c(
-            "Red Meat",
-            "Poultry",
-            "Fish",
-            "Vegetables",
-            "Legumes, Beans, & Nuts",
-            "Eggs & Cheese",
-            "Grains"))
-
-barchart <- ggplot(mAvgmat_bar, 
-    aes(x=Scenario, y=value, fill = variable, group = variable)) +
-	geom_bar(stat="identity", color="black", position="stack") +
-    coord_cartesian() + 
-    coord_flip() + 
-    theme_minimal() +
-    # facet_wrap(variable~.) +
-    xlab("") +
-    ylab("Average Dinner Composition") +
-    labs(fill="Food Groups") +
-    # scale_color_fish_d(palette="Hypsypops_rubicundus") + 
-    scale_fill_viridis(discrete = T) +
-    theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent) 
-
-
-windows()
-print(barchart)
-
-
-# Single Interventiosn
-mPriceMat <- PriceMat[['Povertymat']] %>%
-    # filter(Meal >= 50) %>%
-    group_by(variable, Pricing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population)) %>%
-    mutate(Parameter = 'Pricing') %>% 
-    rename(sensitivity = Pricing)
-
-mSupplyMat <- SupplyMat[['Povertymat']] %>%
-    # filter(Meal >= 50) %>%
-    group_by(variable, Supply) %>% 
-    summarize(value = sum(weightedValue)/sum(Population)) %>%
-    mutate(Parameter = 'Supply') %>% 
-    rename(sensitivity = Supply)
-
-mAvailabilityMat <- AvailabilityMat[['Povertymat']] %>%
-    # filter(Meal >= 50) %>%
-    group_by(variable, Availability) %>% 
-    summarize(value = sum(weightedValue)/sum(Population)) %>%
-    mutate(Parameter = 'Availability') %>% 
-    rename(sensitivity = Availability)
-
-mMarketingMat <- MarketingMat[['Povertymat']] %>%
-    # filter(Meal >= 50) %>%
-    group_by(variable, Marketing) %>% 
-    summarize(value = sum(weightedValue)/sum(Population)) %>%
-    mutate(Parameter = 'Marketing')  %>% 
-    rename(sensitivity = Marketing)
-
-TornadoPlotData <- rbind(mPriceMat, mSupplyMat, mAvailabilityMat, mMarketingMat) %>%
-    mutate(variable = as.character(variable))
-
-TornadoPlotData$variable[TornadoPlotData$variable == "MeatPerc"] <- "Red Meat"
-TornadoPlotData$variable[TornadoPlotData$variable == "PoultryPerc"] <- "Poultry"
-TornadoPlotData$variable[TornadoPlotData$variable == "FishPerc"] <- "Fish"
-TornadoPlotData$variable[TornadoPlotData$variable == "VegPerc"] <- "Vegetables"
-TornadoPlotData$variable[TornadoPlotData$variable == "LegumesBeansNutsPerc"] <- "Legumes, Beans, & Nuts"
-TornadoPlotData$variable[TornadoPlotData$variable == "EggCheesePerc"] <- "Eggs & Cheese"
-TornadoPlotData$variable[TornadoPlotData$variable == "GrainsPerc"] <- "Grains"
-
-TornadoPlotData <- TornadoPlotData %>% 
-    left_join(mAvgmat_bar %>% filter(Scenario == "No Change (Baseline)") %>% 
-    rename(baseValue = value)) %>%
-    mutate(delta = (value - baseValue)/baseValue)
-
-TornadoPlot <- ggplot(TornadoPlotData %>% filter(variable != 'zipcode') %>% arrange(sensitivity), 
-    aes(x=Parameter, y=delta, fill = sensitivity)) +
-	geom_bar(stat="identity", color="black", position="dodge") +
-    coord_cartesian() + 
-    coord_flip() + 
-    theme_minimal() +
-    facet_wrap(variable~.) +
-    xlab("") +
-    ylab("Change compared to baseline scenario") +
-    labs(fill="Parameter Values") +
-    scale_fill_viridis(discrete = T) +
-    theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) +
-    scale_y_continuous(labels = scales::percent) 
-
-windows()
-print(TornadoPlot)

@@ -102,7 +102,7 @@ MeatlessMondayMap <- ggplot() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
   scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
-  ggtitle( "Meatless Marketing (Scenario 1)") +
+  ggtitle( "Non-meat marketing campaign (Scenario 1)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -112,7 +112,7 @@ PriceSurgeMap <- ggplot() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
   scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
-  ggtitle( "Meat Price Surge (Scenario 2)") +
+  ggtitle( "Increase in meat pricing (Scenario 2)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -142,7 +142,7 @@ MoreMeatMeatlessMap <- ggplot() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
   scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
-  ggtitle( "Increase in Meatless Option (Scenario 3)") +
+  ggtitle( "Increase in non-meat options (Scenario 3)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -152,7 +152,7 @@ ComprehensiveMarketingMeatMap <- ggplot() +
   geom_text(data = BaltData %>% filter(AREA_NMBR %in% WideData$zipcode), 
     aes(x=medLong, y=medLat, label=AREA_NMBR), color="white", size=2.5, alpha=0.6) +
   scale_fill_viridis(option="rocket", name = "Reduction \nin meat consumption \ncompared to Baseline", labels = scales::percent, limits = c(0, toprange)) +
-  ggtitle( "Comprehensive Marketing (Scenario 4)") +
+  ggtitle( "Combined non-meat push (Scenario 4)") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5))
 

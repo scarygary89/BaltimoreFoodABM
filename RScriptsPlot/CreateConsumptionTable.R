@@ -227,70 +227,70 @@ ComprehensiveMarketingFoodConsFrac <- ComprehensiveMarketingFoodConsFrac_poverty
 
 FoodConsData_race <- rbind(
     cbind(BaseFoodConsFrac_race, Scenario = "No Change (Baseline)"),
-    cbind(MeatlessMondayFoodConsFrac_race, Scenario = "Meatless Marketing (Scenario 1)"),
-    cbind(PriceSurgeFoodConsFrac_race, Scenario = "Meat Price Surge (Scenario 2)"),
+    cbind(MeatlessMondayFoodConsFrac_race, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeFoodConsFrac_race, Scenario = "Increase in meat pricing (Scenario 2)"),
     # cbind(SupplyShockFoodConsFrac_race, Scenario = "SupplyShock"),
-    cbind(MoreMeatlessOptionsFoodConsFrac_race, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingFoodConsFrac_race, Scenario = "Comprehensive Marketing (Scenario 4)")) %>%
+    cbind(MoreMeatlessOptionsFoodConsFrac_race, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingFoodConsFrac_race, Scenario = "Combined non-meat push (Scenario 4)")) %>%
     # cbind(COVIDFoodConsFrac_race, Scenario = "COVID-19 (Scenario 5)")) %>%
     mutate(Scenario = factor(Scenario, 
         levels = c(
             "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)')))
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)')))
             # 'COVID-19 (Scenario 5)')))
 
 FoodConsData_poverty <- rbind(
     cbind(BaseFoodConsFrac_poverty, Scenario = "No Change (Baseline)"),
-    cbind(MeatlessMondayFoodConsFrac_poverty, Scenario = "Meatless Marketing (Scenario 1)"),
-    cbind(PriceSurgeFoodConsFrac_poverty, Scenario = "Meat Price Surge (Scenario 2)"),
+    cbind(MeatlessMondayFoodConsFrac_poverty, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeFoodConsFrac_poverty, Scenario = "Increase in meat pricing (Scenario 2)"),
     # cbind(SupplyShockFoodConsFrac_poverty, Scenario = "SupplyShock"),
-    cbind(MoreMeatlessOptionsFoodConsFrac_poverty, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingFoodConsFrac_poverty, Scenario = "Comprehensive Marketing (Scenario 4)")) %>%
+    cbind(MoreMeatlessOptionsFoodConsFrac_poverty, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingFoodConsFrac_poverty, Scenario = "Combined non-meat push (Scenario 4)")) %>%
     # cbind(COVIDFoodConsFrac_poverty, Scenario = "COVID-19 (Scenario 5)")) %>%
     mutate(Scenario = factor(Scenario, 
         levels = c(
             "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)')))
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)')))
             # 'COVID-19 (Scenario 5)')))
     
 FoodConsData_income <- rbind(
     cbind(BaseFoodConsFrac_income, Scenario = "No Change (Baseline)"),
-    cbind(MeatlessMondayFoodConsFrac_income, Scenario = "Meatless Marketing (Scenario 1)"),
-    cbind(PriceSurgeFoodConsFrac_income, Scenario = "Meat Price Surge (Scenario 2)"),
+    cbind(MeatlessMondayFoodConsFrac_income, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeFoodConsFrac_income, Scenario = "Increase in meat pricing (Scenario 2)"),
     # cbind(SupplyShockFoodConsFrac_income, Scenario = "SupplyShock"),
-    cbind(MoreMeatlessOptionsFoodConsFrac_income, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingFoodConsFrac_income, Scenario = "Comprehensive Marketing (Scenario 4)")) %>%
+    cbind(MoreMeatlessOptionsFoodConsFrac_income, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingFoodConsFrac_income, Scenario = "Combined non-meat push (Scenario 4)")) %>%
     # cbind(COVIDFoodConsFrac_income, Scenario = "COVID-19 (Scenario 5)")) %>%
     mutate(Scenario = factor(Scenario, 
         levels = c(
             "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)')))
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)')))
             # 'COVID-19 (Scenario 5)')))
 
 FoodConsData <- rbind(
     cbind(BaseFoodConsFrac, Scenario = "No Change (Baseline)"),
-    cbind(MeatlessMondayFoodConsFrac, Scenario = "Meatless Marketing (Scenario 1)"),
-    cbind(PriceSurgeFoodConsFrac, Scenario = "Meat Price Surge (Scenario 2)"),
+    cbind(MeatlessMondayFoodConsFrac, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeFoodConsFrac, Scenario = "Increase in meat pricing (Scenario 2)"),
     # cbind(SupplyShockFoodConsFrac, Scenario = "SupplyShock"),
-    cbind(MoreMeatlessOptionsFoodConsFrac, Scenario = "Increase in Meatless Selection (Scenario 3)"),
-    cbind(ComprehensiveMarketingFoodConsFrac, Scenario = "Comprehensive Marketing (Scenario 4)")) %>%
+    cbind(MoreMeatlessOptionsFoodConsFrac, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingFoodConsFrac, Scenario = "Combined non-meat push (Scenario 4)")) %>%
     # cbind(COVIDFoodConsFrac, Scenario = "COVID-19 (Scenario 5)")) %>%
     mutate(Scenario = factor(Scenario,
         levels = c(
             "No Change (Baseline)",
-            'Meatless Marketing (Scenario 1)',
-            'Meat Price Surge (Scenario 2)',
-            'Increase in Meatless Selection (Scenario 3)',
-            'Comprehensive Marketing (Scenario 4)')))
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)')))
             # 'COVID-19 (Scenario 5)')))
 
 plotvars <- c("Red Meat", "Poultry", "Fish", "Vegetables", "Legumes, Beans, & Nuts", "Eggs & Cheese", "Grains")
@@ -446,16 +446,16 @@ meatRedTableData_race <- tableData_race %>%
     group_by(race) %>%
     summarize(
         "No Change (Baseline)" = sum(`No Change (Baseline)`),
-        "Meatless Marketing (Scenario 1)" = sum(`Meatless Marketing (Scenario 1)`),
-        "Meat Price Surge (Scenario 2)" = sum(`Meat Price Surge (Scenario 2)`),
-        "Increase in Meatless Selection (Scenario 3)" = sum(`Increase in Meatless Selection (Scenario 3)`),
-        "Comprehensive Marketing (Scenario 4)" = sum(`Comprehensive Marketing (Scenario 4)`)
+        "Non-meat marketing campaign (Scenario 1)" = sum(`Non-meat marketing campaign (Scenario 1)`),
+        "Increase in meat pricing (Scenario 2)" = sum(`Increase in meat pricing (Scenario 2)`),
+        "Increase in non-meat options (Scenario 3)" = sum(`Increase in non-meat options (Scenario 3)`),
+        "Combined non-meat push (Scenario 4)" = sum(`Combined non-meat push (Scenario 4)`)
     ) %>%
     mutate(
-        "Meatless Marketing (Scenario 1)" = (`No Change (Baseline)` - `Meatless Marketing (Scenario 1)`)/`No Change (Baseline)`,
-        'Meat Price Surge (Scenario 2)' = (`No Change (Baseline)` - `Meat Price Surge (Scenario 2)`)/`No Change (Baseline)`,
-        'Increase in Meatless Selection (Scenario 3)' = (`No Change (Baseline)` - `Increase in Meatless Selection (Scenario 3)`)/`No Change (Baseline)`,
-        'Comprehensive Marketing (Scenario 4)' = (`No Change (Baseline)` - `Comprehensive Marketing (Scenario 4)`)/`No Change (Baseline)`
+        "Non-meat marketing campaign (Scenario 1)" = (`No Change (Baseline)` - `Non-meat marketing campaign (Scenario 1)`)/`No Change (Baseline)`,
+        'Increase in meat pricing (Scenario 2)' = (`No Change (Baseline)` - `Increase in meat pricing (Scenario 2)`)/`No Change (Baseline)`,
+        'Increase in non-meat options (Scenario 3)' = (`No Change (Baseline)` - `Increase in non-meat options (Scenario 3)`)/`No Change (Baseline)`,
+        'Combined non-meat push (Scenario 4)' = (`No Change (Baseline)` - `Combined non-meat push (Scenario 4)`)/`No Change (Baseline)`
         # 'COVID-19 (Scenario 5)' = (`No Change (Baseline)` - `COVID-19 (Scenario 5)`)/`No Change (Baseline)`
     ) %>% select(-c(`No Change (Baseline)`))
 
@@ -464,16 +464,16 @@ meatRedTableData_income <- tableData_income %>%
     group_by(income) %>%
     summarize(
         "No Change (Baseline)" = sum(`No Change (Baseline)`),
-        "Meatless Marketing (Scenario 1)" = sum(`Meatless Marketing (Scenario 1)`),
-        "Meat Price Surge (Scenario 2)" = sum(`Meat Price Surge (Scenario 2)`),
-        "Increase in Meatless Selection (Scenario 3)" = sum(`Increase in Meatless Selection (Scenario 3)`),
-        "Comprehensive Marketing (Scenario 4)" = sum(`Comprehensive Marketing (Scenario 4)`)
+        "Non-meat marketing campaign (Scenario 1)" = sum(`Non-meat marketing campaign (Scenario 1)`),
+        "Increase in meat pricing (Scenario 2)" = sum(`Increase in meat pricing (Scenario 2)`),
+        "Increase in non-meat options (Scenario 3)" = sum(`Increase in non-meat options (Scenario 3)`),
+        "Combined non-meat push (Scenario 4)" = sum(`Combined non-meat push (Scenario 4)`)
     ) %>%
     mutate(
-        "Meatless Marketing (Scenario 1)" = (`No Change (Baseline)` - `Meatless Marketing (Scenario 1)`)/`No Change (Baseline)`,
-        'Meat Price Surge (Scenario 2)' = (`No Change (Baseline)` - `Meat Price Surge (Scenario 2)`)/`No Change (Baseline)`,
-        'Increase in Meatless Selection (Scenario 3)' = (`No Change (Baseline)` - `Increase in Meatless Selection (Scenario 3)`)/`No Change (Baseline)`,
-        'Comprehensive Marketing (Scenario 4)' = (`No Change (Baseline)` - `Comprehensive Marketing (Scenario 4)`)/`No Change (Baseline)`
+        "Non-meat marketing campaign (Scenario 1)" = (`No Change (Baseline)` - `Non-meat marketing campaign (Scenario 1)`)/`No Change (Baseline)`,
+        'Increase in meat pricing (Scenario 2)' = (`No Change (Baseline)` - `Increase in meat pricing (Scenario 2)`)/`No Change (Baseline)`,
+        'Increase in non-meat options (Scenario 3)' = (`No Change (Baseline)` - `Increase in non-meat options (Scenario 3)`)/`No Change (Baseline)`,
+        'Combined non-meat push (Scenario 4)' = (`No Change (Baseline)` - `Combined non-meat push (Scenario 4)`)/`No Change (Baseline)`
         # 'COVID-19 (Scenario 5)' = (`No Change (Baseline)` - `COVID-19 (Scenario 5)`)/`No Change (Baseline)`
     ) %>% select(-c(`No Change (Baseline)`))
 
@@ -482,16 +482,16 @@ meatRedTableData_poverty <- tableData_poverty %>%
     group_by(poverty) %>%
     summarize(
         "No Change (Baseline)" = sum(`No Change (Baseline)`),
-        "Meatless Marketing (Scenario 1)" = sum(`Meatless Marketing (Scenario 1)`),
-        "Meat Price Surge (Scenario 2)" = sum(`Meat Price Surge (Scenario 2)`),
-        "Increase in Meatless Selection (Scenario 3)" = sum(`Increase in Meatless Selection (Scenario 3)`),
-        "Comprehensive Marketing (Scenario 4)" = sum(`Comprehensive Marketing (Scenario 4)`)
+        "Non-meat marketing campaign (Scenario 1)" = sum(`Non-meat marketing campaign (Scenario 1)`),
+        "Increase in meat pricing (Scenario 2)" = sum(`Increase in meat pricing (Scenario 2)`),
+        "Increase in non-meat options (Scenario 3)" = sum(`Increase in non-meat options (Scenario 3)`),
+        "Combined non-meat push (Scenario 4)" = sum(`Combined non-meat push (Scenario 4)`)
     ) %>%
    mutate(
-        "Meatless Marketing (Scenario 1)" = (`No Change (Baseline)` - `Meatless Marketing (Scenario 1)`)/`No Change (Baseline)`,
-        'Meat Price Surge (Scenario 2)' = (`No Change (Baseline)` - `Meat Price Surge (Scenario 2)`)/`No Change (Baseline)`,
-        'Increase in Meatless Selection (Scenario 3)' = (`No Change (Baseline)` - `Increase in Meatless Selection (Scenario 3)`)/`No Change (Baseline)`,
-        'Comprehensive Marketing (Scenario 4)' = (`No Change (Baseline)` - `Comprehensive Marketing (Scenario 4)`)/`No Change (Baseline)`
+        "Non-meat marketing campaign (Scenario 1)" = (`No Change (Baseline)` - `Non-meat marketing campaign (Scenario 1)`)/`No Change (Baseline)`,
+        'Increase in meat pricing (Scenario 2)' = (`No Change (Baseline)` - `Increase in meat pricing (Scenario 2)`)/`No Change (Baseline)`,
+        'Increase in non-meat options (Scenario 3)' = (`No Change (Baseline)` - `Increase in non-meat options (Scenario 3)`)/`No Change (Baseline)`,
+        'Combined non-meat push (Scenario 4)' = (`No Change (Baseline)` - `Combined non-meat push (Scenario 4)`)/`No Change (Baseline)`
         # 'COVID-19 (Scenario 5)' = (`No Change (Baseline)` - `COVID-19 (Scenario 5)`)/`No Change (Baseline)`
     ) %>% select(-c(`No Change (Baseline)`))
 

@@ -75,16 +75,15 @@ createSensitivityFileKey <- function(term1, term2) {
     } else {
         Ranges2 = c()
     }
-    
     counti <- 0
     if (term2 != "none") {
         for (i in Ranges1) {
             for (j in Ranges2){
                 tl <- paste0(term1, "Sensitivity", i, "_", term2, "Sensitivity", j)
                 if (counti > 0){
-                    tempList <- rbind(tempList, cbind(file = tl, i = i, j = j))
+                    tempList <- rbind(tempList, cbind(file = tl, term1 = i, term2 = j))
                 } else {
-                    tempList <- cbind(file = tl, i = i, j = j)
+                    tempList <- cbind(file = tl, term1 = i, term2 = j)
                 }
                 counti <- counti + 1
             }
@@ -93,14 +92,37 @@ createSensitivityFileKey <- function(term1, term2) {
         for (i in Ranges1) {
             tl <- paste0(term1, "Sensitivity", i)
             if (counti > 0){
-                tempList <- rbind(tempList, cbind(file = tl, i = i))
+                tempList <- rbind(tempList, cbind(file = tl, term1 = i))
             } else {
-                tempList <- cbind(file = tl, i = i)
+                tempList <- cbind(file = tl, term1 = i)
             }
             counti <- counti + 1
         }
     }
     return(tempList)
+}
+
+createLongDataSensitivtyAnalysis <- function(term1, term2, dataList, series){
+    dataKey <- createSensitivityFileKey(term1, term2)
+    listNames <- dataKey[,'file']
+    if (term2 != "none") {
+        datalist <- lapply(listNames, function(x) {
+            df <- dataList[[x]][[series]]
+            df <- df %>% mutate(term1 = dataKey[listNames == x,"term1"], term2 = dataKey[listNames == x,"term2"])
+            names(df)[names(df) == 'term1'] <- term1
+            names(df)[names(df) == 'term2'] <- term2
+            return(df)
+        })
+    } else {
+        datalist <- lapply(listNames, function(x) {
+            df <- dataList[[x]][[series]]
+            df <- df %>% mutate(term1 = dataKey[listNames == x,"term1"])
+            names(df)[names(df) == 'term1'] <- term1
+            return(df)
+        })
+    }
+    RunsCombo <- do.call(rbind, datalist)
+    return(RunsCombo)
 }
 
 createLongData <- function(inputData, series){
