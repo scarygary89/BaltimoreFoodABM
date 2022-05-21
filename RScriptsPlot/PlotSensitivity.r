@@ -7,8 +7,8 @@ library(fishualize)
 library(reshape2)
 library(ggpubr)
 
-# mydir <- 'C:/Users/aadam/Desktop/TestABM'
-mydir <- "C:/Users/GaryLin/Dropbox/MarylandFoodModel/ABM/BaltimoreFoodABM/"
+mydir <- 'C:/Users/aadam/Desktop/TestABM'
+# mydir <- "C:/Users/GaryLin/Dropbox/MarylandFoodModel/ABM/BaltimoreFoodABM/"
 setwd(mydir)
 source("RScriptsPlot/ImportFunctions.R")
 
