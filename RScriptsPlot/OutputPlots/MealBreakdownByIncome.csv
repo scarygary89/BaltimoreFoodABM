@@ -1,4 +1,4 @@
-"income","variable","No Change (Baseline)","Meatless Marketing (Scenario 1)","Meat Price Surge (Scenario 2)","Increase in Meatless Selection (Scenario 3)","Comprehensive Marketing (Scenario 4)"
+"income","variable","No Change (Baseline)","Non-meat marketing campaign (Scenario 1)","Increase in meat pricing (Scenario 2)","Increase in non-meat options (Scenario 3)","Combined non-meat push (Scenario 4)"
 "Less than $25k","Red Meat",0.0801016465705671,0.0767495421513665,0.0776327130993838,0.0724670786052765,0.0697674376995557
 "Less than $25k","Poultry",0.0912431410255571,0.0875620764622591,0.088320167560699,0.0832801068553456,0.0803913543008078
 "Less than $25k","Fish",0.0316290898244971,0.0349451703143611,0.0318727929977488,0.028882500579037,0.0319390453432134

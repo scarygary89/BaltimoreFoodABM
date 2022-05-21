@@ -1,4 +1,4 @@
-"race","variable","No Change (Baseline)","Meatless Marketing (Scenario 1)","Meat Price Surge (Scenario 2)","Increase in Meatless Selection (Scenario 3)","Comprehensive Marketing (Scenario 4)"
+"race","variable","No Change (Baseline)","Non-meat marketing campaign (Scenario 1)","Increase in meat pricing (Scenario 2)","Increase in non-meat options (Scenario 3)","Combined non-meat push (Scenario 4)"
 "Mexican American","Red Meat",0.0790936276550347,0.0761553920327752,0.0768583457203232,0.0709879691740133,0.068446513527289
 "Mexican American","Poultry",0.0884929252921965,0.084824376927395,0.0855972227471517,0.0799714053112629,0.0772096112726177
 "Mexican American","Fish",0.0307385434232065,0.0339838393812728,0.0308882779688105,0.027596093991891,0.0308629800458834

@@ -214,15 +214,15 @@ summaryzipdata <- BaltShape@data %>%
 
 mscatdata <- melt(summaryzipdata , id.vars = c("AREA_NMBR", "LowIncRatio", "BlackProp")) %>% na.omit()
 mscatdata$variable <- as.character(mscatdata$variable)
-mscatdata$variable[mscatdata$variable == 'MeatlessMondayMeat'] <- "Meatless Marketing (Scenario 1)"
-mscatdata$variable[mscatdata$variable == 'PriceSurgeMeat'] <- "Meat Price Surge (Scenario 2)"
-mscatdata$variable[mscatdata$variable == 'MoreMeatMeatless'] <- "Increase in Meatless Option (Scenario 3)"
-mscatdata$variable[mscatdata$variable == 'ComprehensiveMarketingMeat'] <- "Comprehensive Marketing (Scenario 4)"
+mscatdata$variable[mscatdata$variable == 'MeatlessMondayMeat'] <- "Non-meat marketing campaign (Scenario 1)"
+mscatdata$variable[mscatdata$variable == 'PriceSurgeMeat'] <- "Increase in meat pricing (Scenario 2)"
+mscatdata$variable[mscatdata$variable == 'MoreMeatMeatless'] <- "Increase in non-meat options (Scenario 3)"
+mscatdata$variable[mscatdata$variable == 'ComprehensiveMarketingMeat'] <- "Combined non-meat push (Scenario 4)"
 mscatdata$variable <- factor(mscatdata$variable, levels = c(
-  "Meatless Marketing (Scenario 1)",
-  "Meat Price Surge (Scenario 2)",
-  "Increase in Meatless Option (Scenario 3)",
-  "Comprehensive Marketing (Scenario 4)"))
+  "Non-meat marketing campaign (Scenario 1)",
+  "Increase in meat pricing (Scenario 2)",
+  "Increase in non-meat options (Scenario 3)",
+  "Combined non-meat push (Scenario 4)"))
 
 scatincome <- ggplot(mscatdata, aes(x = LowIncRatio, y = value, color = variable, group = variable)) +
   geom_point() +
