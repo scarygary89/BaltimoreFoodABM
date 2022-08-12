@@ -4,7 +4,7 @@ import random
 from timeit import default_timer as timer
 from datetime import timedelta
 
-import core.AgentProcs
+import src.AgentProcs
 
 # Define a class that contains the equations, parameters, and initial conditions
 class FoodModel:
