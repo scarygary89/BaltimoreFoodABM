@@ -10,7 +10,7 @@ import core.AgentProcs
 class FoodModel:
     def __init__(self, globalInputDict, foodPricesDict, supplyTSDict, marketingTSDict, agentList, storeList, storeDict):
         # Model Parms
-        self.iterations = 100
+        self.iterations = 400
         self.agentList = agentList
         self.storeList = storeList
         self.storeDict = storeDict

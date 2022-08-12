@@ -7,17 +7,21 @@ library(viridis)
 library(fishualize)
 library(reshape2)
 
-mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+# mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+mydir <- setwd("C:/Users/GaryLin/Dropbox/MarylandFoodModel/ABM/BaltimoreFoodABM")
+OutputFolder <- "Output_24July2022_365days"
+# OutputFolder <- "Output_Final"
+
 source("RScriptsPlot/ImportFunctions.R")
 
 # Import Data from all Scenarios
-BaselineData <- ImportDataForScenarios(paste0(mydir,'/Output'), "Baseline")
-MeatlessMondayData <- ImportDataForScenarios(paste0(mydir,'/Output'), "MeatlessMonday")
-PriceSurgeData <- ImportDataForScenarios(paste0(mydir,'/Output'), "PriceSurge")
-SupplyShockData <- ImportDataForScenarios(paste0(mydir,'/Output'), "SupplyShock")
-COVIDData <- ImportDataForScenarios(paste0(mydir,'/Output'), "COVID")
-MoreMeatlessOptionsData <- ImportDataForScenarios(paste0(mydir,'/Output'), "MoreMeatlessOptions")
-ComprehensiveMarketingData <- ImportDataForScenarios(paste0(mydir,'/Output'), "ComprehensiveMarketing")
+BaselineData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "Baseline")
+MeatlessMondayData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "MeatlessMonday")
+PriceSurgeData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "PriceSurge")
+SupplyShockData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "SupplyShock")
+COVIDData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "COVID")
+MoreMeatlessOptionsData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "MoreMeatlessOptions")
+ComprehensiveMarketingData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "ComprehensiveMarketing")
 
 # Create long data that can be processed into plot data
 BaseLong_Race <- createLongData(BaselineData,'Race')
@@ -48,7 +52,8 @@ ComprehensiveMarketingLong_Race <- createLongData(ComprehensiveMarketingData,'Ra
 ComprehensiveMarketingLong_Poverty <- createLongData(ComprehensiveMarketingData,'Poverty')
 ComprehensiveMarketingLong_Income <- createLongData(ComprehensiveMarketingData,'Income')
 
-CalculateWeightedAverages <- function(longDataSet, stratifyingFeature) {
+
+WidenFoodConsData <- function(longDataSet, stratifyingFeature) {
     FoodCons <- longDataSet %>% group_by(!!!rlang::syms(c(stratifyingFeature, "Scenario", "zipcode"))) %>%
         filter(Meal >= 50) %>%
         summarize(
@@ -60,18 +65,7 @@ CalculateWeightedAverages <- function(longDataSet, stratifyingFeature) {
             EggCheese = sum(EggCheese),
             Grains = sum(Grains),
             Population = mean(Population)
-        ) %>%
-        group_by(!!!rlang::syms(c(stratifyingFeature, "zipcode"))) %>%
-        summarize(
-            Meat = mean(Meat),
-            Veg = mean(Veg),
-            Poultry = mean(Poultry),
-            Fish = mean(Fish),
-            LegumesBeansNuts = mean(LegumesBeansNuts),
-            EggCheese = mean(EggCheese),
-            Grains = mean(Grains),
-            Population = mean(Population)
-        ) %>%
+        )  %>%
         mutate(
             WeightedMeat = Meat * Population,
             WeightedVeg = Veg * Population,
@@ -80,8 +74,40 @@ CalculateWeightedAverages <- function(longDataSet, stratifyingFeature) {
             WeightedLegumesBeansNuts = LegumesBeansNuts * Population,
             WeightedEggCheese = EggCheese * Population,
             WeightedGrains = Grains * Population
-        ) %>% 
-        group_by(!!!rlang::syms(stratifyingFeature)) %>%
+        )%>%
+        ungroup()
+    return(FoodCons)
+}
+
+BaseWide_race <- WidenFoodConsData(BaseLong_Race, "race")
+MeatlessMondayWide_race <- WidenFoodConsData(MeatlessMondayLong_Race, "race")
+PriceSurgeWide_race <- WidenFoodConsData(PriceSurgeLong_Race, "race")
+SupplyShockWide_race <- WidenFoodConsData(SupplyShockLong_Race, "race")
+COVIDWide_race <- WidenFoodConsData(COVIDLong_Race, "race")
+MoreMeatlessOptionsWide_race <- WidenFoodConsData(MoreMeatlessOptionsLong_Race, "race")
+ComprehensiveMarketingWide_race <- WidenFoodConsData(ComprehensiveMarketingLong_Race, "race")
+
+BaseWide_poverty <- WidenFoodConsData(BaseLong_Poverty, "poverty")
+MeatlessMondayWide_poverty <- WidenFoodConsData(MeatlessMondayLong_Poverty, "poverty") 
+PriceSurgeWide_poverty <- WidenFoodConsData(PriceSurgeLong_Poverty, "poverty")
+SupplyShockWide_poverty <- WidenFoodConsData(SupplyShockLong_Poverty, "poverty")
+COVIDWide_poverty <- WidenFoodConsData(COVIDLong_Poverty, "poverty")
+MoreMeatlessOptionsWide_poverty <- WidenFoodConsData(MoreMeatlessOptionsLong_Poverty, "poverty")
+ComprehensiveMarketingWide_poverty <- WidenFoodConsData(ComprehensiveMarketingLong_Poverty, "poverty")
+
+
+BaseWide_income <- WidenFoodConsData(BaseLong_Income, "income")
+MeatlessMondayWide_income <- WidenFoodConsData(MeatlessMondayLong_Income, "income") 
+PriceSurgeWide_income <- WidenFoodConsData(PriceSurgeLong_Income, "income")
+SupplyShockWide_income <- WidenFoodConsData(SupplyShockLong_Income, "income")
+COVIDWide_income <- WidenFoodConsData(COVIDLong_Income, "income")
+MoreMeatlessOptionsWide_income <- WidenFoodConsData(MoreMeatlessOptionsLong_Income, "income")
+ComprehensiveMarketingWide_income <- WidenFoodConsData(ComprehensiveMarketingLong_Income, "income")
+
+CalculateWeightedAverages <- function(wideDataset, stratifyingFeature) {
+    numScen <- wideDataset %>% pull(Scenario) %>% unique() %>% length()
+    FoodCons <- wideDataset %>%
+        group_by(!!!rlang::syms(c(stratifyingFeature, "Scenario"))) %>%
         summarize(
             Meat = sum(WeightedMeat) / sum(Population),
             Veg = sum(WeightedVeg) / sum(Population),
@@ -91,40 +117,81 @@ CalculateWeightedAverages <- function(longDataSet, stratifyingFeature) {
             EggCheese = sum(WeightedEggCheese) / sum(Population),
             Grains = sum(WeightedGrains) / sum(Population),
             Population = sum(Population)
+        ) %>%
+        group_by(!!!rlang::syms(stratifyingFeature)) %>%
+        summarize(
+            # Calculate 95% CI
+            Meat_low = mean(Meat) - qt(0.975,df=numScen-1)*sd(Meat)/sqrt(numScen),
+            Meat_high = mean(Meat) + qt(0.975,df=numScen-1)*sd(Meat)/sqrt(numScen),
+            Veg_low = mean(Veg) - qt(0.975,df=numScen-1)*sd(Veg)/sqrt(numScen),
+            Veg_high = mean(Veg) + qt(0.975,df=numScen-1)*sd(Veg)/sqrt(numScen),
+            Poultry_low = mean(Poultry) - qt(0.975,df=numScen-1)*sd(Poultry)/sqrt(numScen),
+            Poultry_high = mean(Poultry) + qt(0.975,df=numScen-1)*sd(Poultry)/sqrt(numScen),
+            Fish_low = mean(Fish) - qt(0.975,df=numScen-1)*sd(Fish)/sqrt(numScen),
+            Fish_high = mean(Fish) + qt(0.975,df=numScen-1)*sd(Fish)/sqrt(numScen),
+            LegumesBeansNuts_low = mean(LegumesBeansNuts) - qt(0.975,df=numScen-1)*sd(LegumesBeansNuts)/sqrt(numScen),
+            LegumesBeansNuts_high = mean(LegumesBeansNuts) + qt(0.975,df=numScen-1)*sd(LegumesBeansNuts)/sqrt(numScen),
+            EggCheese_low = mean(EggCheese) - qt(0.975,df=numScen-1)*sd(EggCheese)/sqrt(numScen),
+            EggCheese_high = mean(EggCheese) + qt(0.975,df=numScen-1)*sd(EggCheese)/sqrt(numScen),
+            Grains_low = mean(Grains) - qt(0.975,df=numScen-1)*sd(Grains)/sqrt(numScen),
+            Grains_high = mean(Grains) + qt(0.975,df=numScen-1)*sd(Grains)/sqrt(numScen),
+            # Calculate Averages
+            Meat = mean(Meat),
+            Veg = mean(Veg),
+            Poultry = mean(Poultry),
+            Fish = mean(Fish),
+            LegumesBeansNuts = mean(LegumesBeansNuts),
+            EggCheese = mean(EggCheese),
+            Grains = mean(Grains),
+            Population = mean(Population)
         )
     return(FoodCons)
 }
 
-BaseFoodCons_race <- CalculateWeightedAverages(BaseLong_Race, "race")
-MeatlessMondayFoodCons_race <- CalculateWeightedAverages(MeatlessMondayLong_Race, "race") 
-PriceSurgeFoodCons_race <- CalculateWeightedAverages(PriceSurgeLong_Race, "race")
-SupplyShockFoodCons_race <- CalculateWeightedAverages(SupplyShockLong_Race, "race")
-COVIDFoodCons_race <- CalculateWeightedAverages(COVIDLong_Race, "race")
-MoreMeatlessOptionsFoodCons_race <- CalculateWeightedAverages(MoreMeatlessOptionsLong_Race, "race")
-ComprehensiveMarketingFoodCons_race <- CalculateWeightedAverages(ComprehensiveMarketingLong_Race, "race")
+BaseFoodCons_race <- CalculateWeightedAverages(BaseWide_race, "race")
+MeatlessMondayFoodCons_race <- CalculateWeightedAverages(MeatlessMondayWide_race, "race") 
+PriceSurgeFoodCons_race <- CalculateWeightedAverages(PriceSurgeWide_race, "race")
+SupplyShockFoodCons_race <- CalculateWeightedAverages(SupplyShockWide_race, "race")
+COVIDFoodCons_race <- CalculateWeightedAverages(COVIDWide_race, "race")
+MoreMeatlessOptionsFoodCons_race <- CalculateWeightedAverages(MoreMeatlessOptionsWide_race, "race")
+ComprehensiveMarketingFoodCons_race <- CalculateWeightedAverages(ComprehensiveMarketingWide_race, "race")
 
 
-BaseFoodCons_poverty <- CalculateWeightedAverages(BaseLong_Poverty, "poverty")
-MeatlessMondayFoodCons_poverty <- CalculateWeightedAverages(MeatlessMondayLong_Poverty, "poverty") 
-PriceSurgeFoodCons_poverty <- CalculateWeightedAverages(PriceSurgeLong_Poverty, "poverty")
-SupplyShockFoodCons_poverty <- CalculateWeightedAverages(SupplyShockLong_Poverty, "poverty")
-COVIDFoodCons_poverty <- CalculateWeightedAverages(COVIDLong_Poverty, "poverty")
-MoreMeatlessOptionsFoodCons_poverty <- CalculateWeightedAverages(MoreMeatlessOptionsLong_Poverty, "poverty")
-ComprehensiveMarketingFoodCons_poverty <- CalculateWeightedAverages(ComprehensiveMarketingLong_Poverty, "poverty")
+BaseFoodCons_poverty <- CalculateWeightedAverages(BaseWide_poverty, "poverty")
+MeatlessMondayFoodCons_poverty <- CalculateWeightedAverages(MeatlessMondayWide_poverty, "poverty") 
+PriceSurgeFoodCons_poverty <- CalculateWeightedAverages(PriceSurgeWide_poverty, "poverty")
+SupplyShockFoodCons_poverty <- CalculateWeightedAverages(SupplyShockWide_poverty, "poverty")
+COVIDFoodCons_poverty <- CalculateWeightedAverages(COVIDWide_poverty, "poverty")
+MoreMeatlessOptionsFoodCons_poverty <- CalculateWeightedAverages(MoreMeatlessOptionsWide_poverty, "poverty")
+ComprehensiveMarketingFoodCons_poverty <- CalculateWeightedAverages(ComprehensiveMarketingWide_poverty, "poverty")
 
 
-BaseFoodCons_income <- CalculateWeightedAverages(BaseLong_Income, "income")
-MeatlessMondayFoodCons_income <- CalculateWeightedAverages(MeatlessMondayLong_Income, "income") 
-PriceSurgeFoodCons_income <- CalculateWeightedAverages(PriceSurgeLong_Income, "income")
-SupplyShockFoodCons_income <- CalculateWeightedAverages(SupplyShockLong_Income, "income")
-COVIDFoodCons_income <- CalculateWeightedAverages(COVIDLong_Income, "income")
-MoreMeatlessOptionsFoodCons_income <- CalculateWeightedAverages(MoreMeatlessOptionsLong_Income, "income")
-ComprehensiveMarketingFoodCons_income <- CalculateWeightedAverages(ComprehensiveMarketingLong_Income, "income")
+BaseFoodCons_income <- CalculateWeightedAverages(BaseWide_income, "income")
+MeatlessMondayFoodCons_income <- CalculateWeightedAverages(MeatlessMondayWide_income, "income") 
+PriceSurgeFoodCons_income <- CalculateWeightedAverages(PriceSurgeWide_income, "income")
+SupplyShockFoodCons_income <- CalculateWeightedAverages(SupplyShockWide_income, "income")
+COVIDFoodCons_income <- CalculateWeightedAverages(COVIDWide_income, "income")
+MoreMeatlessOptionsFoodCons_income <- CalculateWeightedAverages(MoreMeatlessOptionsWide_income, "income")
+ComprehensiveMarketingFoodCons_income <- CalculateWeightedAverages(ComprehensiveMarketingWide_income, "income")
 
 CalculateFractionalBreakdown <- function(ConsData){
     FracData <- ConsData %>%
         mutate(
             Total = Meat + Veg + Poultry + Fish + LegumesBeansNuts + EggCheese + Grains,
+            "Red Meat_Low" = Meat_low / (Total - Meat + Meat_low),
+            "Red Meat_High" = Meat_high / (Total - Meat + Meat_high),
+            "Vegetables_Low" = Veg_low / (Total - Veg + Veg_low),
+            "Vegetables_High" = Veg_high / (Total - Veg + Veg_high),
+            "Poultry_Low" = Poultry_low / (Total - Poultry + Poultry_low),
+            "Poultry_High" = Poultry_high / (Total - Poultry + Poultry_high),
+            "Fish_Low" = Fish_low / (Total - Fish + Fish_low),
+            "Fish_High" = Fish_high / (Total - Fish + Fish_high),
+            "Legumes, Beans, & Nuts_Low" = LegumesBeansNuts_low / (Total - LegumesBeansNuts + LegumesBeansNuts_low),
+            "Legumes, Beans, & Nuts_High" = LegumesBeansNuts_high / (Total - LegumesBeansNuts + LegumesBeansNuts_high),
+            "Eggs & Cheese_Low" = EggCheese_low / (Total - EggCheese + EggCheese_low),
+            "Eggs & Cheese_High" = EggCheese_high / (Total - EggCheese + EggCheese_high),
+            "Grains_Low" = Grains_low / (Total - Grains + Grains_low),
+            "Grains_High" = Grains_high / (Total - Grains + Grains_high),
             "Red Meat" = Meat / Total,
             "Vegetables" = Veg / Total,
             "Poultry" = Poultry / Total,
@@ -159,71 +226,6 @@ SupplyShockFoodConsFrac_income  <- CalculateFractionalBreakdown(SupplyShockFoodC
 COVIDFoodConsFrac_income  <- CalculateFractionalBreakdown(COVIDFoodCons_income)
 MoreMeatlessOptionsFoodConsFrac_income  <- CalculateFractionalBreakdown(MoreMeatlessOptionsFoodCons_income)
 ComprehensiveMarketingFoodConsFrac_income  <- CalculateFractionalBreakdown(ComprehensiveMarketingFoodCons_income)
-
-
-BaseFoodConsFrac <- BaseFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-MeatlessMondayFoodConsFrac <- MeatlessMondayFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-PriceSurgeFoodConsFrac <- PriceSurgeFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-SupplyShockFoodConsFrac <- SupplyShockFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-COVIDFoodConsFrac <- COVIDFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-MoreMeatlessOptionsFoodConsFrac <- MoreMeatlessOptionsFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
-ComprehensiveMarketingFoodConsFrac <- ComprehensiveMarketingFoodConsFrac_poverty %>% summarize(
-    "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
-    "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
-    "Poultry" = sum(`Poultry` * Population) / sum(Population),
-    "Fish" = sum(`Fish` * Population) / sum(Population),
-    "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
-    "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
-    "Grains" = sum(`Grains` * Population) / sum(Population)
-    )
 
 FoodConsData_race <- rbind(
     cbind(BaseFoodConsFrac_race, Scenario = "No Change (Baseline)"),
@@ -275,6 +277,27 @@ FoodConsData_income <- rbind(
             'Increase in non-meat options (Scenario 3)',
             'Combined non-meat push (Scenario 4)')))
             # 'COVID-19 (Scenario 5)')))
+
+createFracTableOverall <- function(FoodConsFrac){
+    FoodConsFracOverall <- FoodConsFrac %>% summarize(
+        "Red Meat" =  sum(`Red Meat` * Population) / sum(Population),
+        "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
+        "Poultry" = sum(`Poultry` * Population) / sum(Population),
+        "Fish" = sum(`Fish` * Population) / sum(Population),
+        "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
+        "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
+        "Grains" = sum(`Grains` * Population) / sum(Population)
+    )
+    return(FoodConsFracOverall)
+}
+
+BaseFoodConsFrac <- createFracTableOverall(BaseFoodConsFrac_poverty)
+MeatlessMondayFoodConsFrac <- createFracTableOverall(MeatlessMondayFoodConsFrac_poverty)
+PriceSurgeFoodConsFrac <- createFracTableOverall(PriceSurgeFoodConsFrac_poverty)
+SupplyShockFoodConsFrac <- createFracTableOverall(SupplyShockFoodConsFrac_poverty)
+COVIDFoodConsFrac <- createFracTableOverall(COVIDFoodConsFrac_poverty)
+MoreMeatlessOptionsFoodConsFrac <- createFracTableOverall(MoreMeatlessOptionsFoodConsFrac_poverty)
+ComprehensiveMarketingFoodConsFrac <- createFracTableOverall(ComprehensiveMarketingFoodConsFrac_poverty)
 
 FoodConsData <- rbind(
     cbind(BaseFoodConsFrac, Scenario = "No Change (Baseline)"),
@@ -431,10 +454,113 @@ print(barchart)
 dev.off()
 
 # Create Tables
-tableData_race <- mFoodConsData_race %>% spread(Scenario,value)
-tableData_income <- mFoodConsData_income %>% spread(Scenario,value)
-tableData_poverty <- mFoodConsData_poverty %>% spread(Scenario,value)
-tableData <- mFoodConsData %>% spread(Scenario,value)
+createFracTableOverallWithCI <- function(FoodConsFrac){
+    FoodConsFracOverall <- FoodConsFrac %>% summarize(
+        "Red Meat" = sum(`Red Meat` * Population) / sum(Population),
+        "Red Meat_Low" = sum(`Red Meat_Low` * Population) / sum(Population),
+        "Red Meat_High" = sum(`Red Meat_High` * Population) / sum(Population),
+        "Vegetables" = sum(`Vegetables` * Population) / sum(Population),
+        "Vegetables_Low" = sum(`Vegetables_Low` * Population) / sum(Population),
+        "Vegetables_High" = sum(`Vegetables_High` * Population) / sum(Population),
+        "Poultry" = sum(`Poultry` * Population) / sum(Population),
+        "Poultry_Low" = sum(`Poultry_Low` * Population) / sum(Population),
+        "Poultry_High" = sum(`Poultry_High` * Population) / sum(Population),
+        "Fish" = sum(`Fish` * Population) / sum(Population),
+        "Fish_Low" = sum(`Fish_Low` * Population) / sum(Population),
+        "Fish_High" = sum(`Fish_High` * Population) / sum(Population),
+        "Legumes, Beans, & Nuts" =  sum(`Legumes, Beans, & Nuts` * Population) / sum(Population),
+        "Legumes, Beans, & Nuts_Low" =  sum(`Legumes, Beans, & Nuts_Low` * Population) / sum(Population),
+        "Legumes, Beans, & Nuts_High" =  sum(`Legumes, Beans, & Nuts_High` * Population) / sum(Population),
+        "Eggs & Cheese" = sum(`Eggs & Cheese` * Population) / sum(Population),
+        "Eggs & Cheese_Low" = sum(`Eggs & Cheese_Low` * Population) / sum(Population),
+        "Eggs & Cheese_High" = sum(`Eggs & Cheese_High` * Population) / sum(Population),
+        "Grains" = sum(`Grains` * Population) / sum(Population),
+        "Grains_Low" = sum(`Grains_Low` * Population) / sum(Population),
+        "Grains_High" = sum(`Grains_High` * Population) / sum(Population)
+    )
+    return(FoodConsFracOverall)
+}
+
+BaseFoodConsFracWithCI <- createFracTableOverallWithCI(BaseFoodConsFrac_poverty)
+MeatlessMondayFoodConsFracWithCI <- createFracTableOverallWithCI(MeatlessMondayFoodConsFrac_poverty)
+PriceSurgeFoodConsFracWithCI <- createFracTableOverallWithCI(PriceSurgeFoodConsFrac_poverty)
+SupplyShockFoodConsFracWithCI <- createFracTableOverallWithCI(SupplyShockFoodConsFrac_poverty)
+COVIDFoodConsFracWithCI <- createFracTableOverallWithCI(COVIDFoodConsFrac_poverty)
+MoreMeatlessOptionsFoodConsFracWithCI <- createFracTableOverallWithCI(MoreMeatlessOptionsFoodConsFrac_poverty)
+ComprehensiveMarketingFoodConsFracWithCI <- createFracTableOverallWithCI(ComprehensiveMarketingFoodConsFrac_poverty)
+
+FoodConsDataWithCI <- rbind(
+    cbind(BaseFoodConsFracWithCI, Scenario = "No Change (Baseline)"),
+    cbind(MeatlessMondayFoodConsFracWithCI, Scenario = "Non-meat marketing campaign (Scenario 1)"),
+    cbind(PriceSurgeFoodConsFracWithCI, Scenario = "Increase in meat pricing (Scenario 2)"),
+    # cbind(SupplyShockFoodConsFracWithCI, Scenario = "SupplyShock"),
+    cbind(MoreMeatlessOptionsFoodConsFracWithCI, Scenario = "Increase in non-meat options (Scenario 3)"),
+    cbind(ComprehensiveMarketingFoodConsFracWithCI, Scenario = "Combined non-meat push (Scenario 4)")) %>%
+    # cbind(COVIDFoodConsFracWithCI, Scenario = "COVID-19 (Scenario 5)")) %>%
+    mutate(Scenario = factor(Scenario,
+        levels = c(
+            "No Change (Baseline)",
+            'Non-meat marketing campaign (Scenario 1)',
+            'Increase in meat pricing (Scenario 2)',
+            'Increase in non-meat options (Scenario 3)',
+            'Combined non-meat push (Scenario 4)')))
+            # 'COVID-19 (Scenario 5)')))
+tablevars <- c(
+    "Red Meat",
+    "Red Meat_Low",
+    "Red Meat_High",
+    "Poultry",
+    "Poultry_Low",
+    "Poultry_High",
+    "Fish", 
+    "Fish_Low", 
+    "Fish_High", 
+    "Vegetables", 
+    "Vegetables_Low", 
+    "Vegetables_High", 
+    "Legumes, Beans, & Nuts", 
+    "Legumes, Beans, & Nuts_Low", 
+    "Legumes, Beans, & Nuts_High", 
+    "Eggs & Cheese", 
+    "Eggs & Cheese_Low", 
+    "Eggs & Cheese_High", 
+    "Grains",
+    "Grains_Low",
+    "Grains_High"
+)
+
+mFoodConsDataWithCI <- reshape2::melt(FoodConsDataWithCI, id.vars=c("Scenario")) %>% 
+    filter(variable %in% tablevars) %>%
+    mutate(variable = factor(variable,
+        levels = tablevars))
+
+mFoodConsDataWithCI_race <- reshape2::melt(FoodConsData_race, id.vars=c("Scenario","race")) %>% 
+    filter(variable %in% tablevars) %>% 
+    mutate(
+        variable = factor(variable, 
+            levels = tablevars))
+mFoodConsDataWithCI_poverty <- reshape2::melt(FoodConsData_poverty, id.vars=c("Scenario","poverty")) %>% 
+    filter(variable %in% tablevars) %>% 
+    mutate(variable = factor(variable, 
+        levels = tablevars))
+mFoodConsDataWithCI_poverty$poverty[mFoodConsDataWithCI_poverty$poverty == 1] <- "In Poverty" 
+mFoodConsDataWithCI_poverty$poverty[mFoodConsDataWithCI_poverty$poverty == 0] <- "Not in Poverty"
+mFoodConsDataWithCI_poverty$poverty <- factor(mFoodConsDataWithCI_poverty$poverty, levels = c("In Poverty","Not in Poverty"))
+
+mFoodConsDataWithCI_income <- reshape2::melt(FoodConsData_income, id.vars=c("Scenario","income")) %>% 
+    filter(variable %in% tablevars) %>% 
+    mutate(
+        variable = factor(variable, 
+            levels = tablevars),
+        income = factor(income,
+            levels = c("Less than $25k", "$25k - $55k", "$55k - $75k", "More than $75k")
+        )
+    )
+
+tableData_race <- mFoodConsDataWithCI_race %>% spread(Scenario,value)
+tableData_income <- mFoodConsDataWithCI_income %>% spread(Scenario,value)
+tableData_poverty <- mFoodConsDataWithCI_poverty %>% spread(Scenario,value)
+tableData <- mFoodConsDataWithCI %>% spread(Scenario,value)
 
 write.csv(tableData_race, row.names =F, file ="RScriptsPlot/OutputPlots/MealBreakdownByRace.csv")
 write.csv(tableData_income, row.names =F, file ="RScriptsPlot/OutputPlots/MealBreakdownByIncome.csv")

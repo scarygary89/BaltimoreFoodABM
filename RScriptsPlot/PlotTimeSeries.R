@@ -6,17 +6,20 @@ library(data.table)
 library(viridis)
 library(fishualize)
 
-mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+# mydir <- setwd('C:/Users/aadam/Desktop/TestABM')
+mydir <- setwd("C:/Users/GaryLin/Dropbox/MarylandFoodModel/ABM/BaltimoreFoodABM")
+OutputFolder <- "Output_24July2022_365days"
+
 source("RScriptsPlot/ImportFunctions.R")
 
 # Import Data from all Scenarios
-BaselineData <- ImportDataForScenarios(paste0(mydir,'/Output'), "Baseline")
-MeatlessMondayData <- ImportDataForScenarios(paste0(mydir,'/Output'), "MeatlessMonday")
-PriceSurgeData <- ImportDataForScenarios(paste0(mydir,'/Output'), "PriceSurge")
-SupplyShockData <- ImportDataForScenarios(paste0(mydir,'/Output'), "SupplyShock")
-COVIDData <- ImportDataForScenarios(paste0(mydir,'/Output'), "COVID")
-MoreMeatlessOptionsData <- ImportDataForScenarios(paste0(mydir,'/Output'), "MoreMeatlessOptions")
-ComprehensiveMarketingData <- ImportDataForScenarios(paste0(mydir,'/Output'), "ComprehensiveMarketing")
+BaselineData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "Baseline")
+MeatlessMondayData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "MeatlessMonday")
+PriceSurgeData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "PriceSurge")
+SupplyShockData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "SupplyShock")
+COVIDData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "COVID")
+MoreMeatlessOptionsData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "MoreMeatlessOptions")
+ComprehensiveMarketingData <- ImportDataForScenarios(paste0(mydir,'/',OutputFolder), "ComprehensiveMarketing")
 
 # Create long data that can be processed into plot data
 BaseLong_Race <- createLongData(BaselineData,'Race')

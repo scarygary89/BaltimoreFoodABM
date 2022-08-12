@@ -117,7 +117,12 @@ singleSensitivityData <- rbind(
     cbind(MarketingPerc, Parameter = "Non-meat marketing campaign \n(Scenario 1)"),
     cbind(PricePerc, Parameter = "Increase in meat pricing \n(Scenario 2)"),
     cbind(AvailabilityPerc, Parameter = "Increase in non-meat options \n(Scenario 3)")
-    ) 
+    ) %>%
+    mutate(Parameter = factor(Parameter, 
+        levels = c(
+        "Non-meat marketing campaign \n(Scenario 1)",
+        "Increase in meat pricing \n(Scenario 2)",
+        "Increase in non-meat options \n(Scenario 3)")))
 
 SingleParmPlot <- ggplot(singleSensitivityData, aes(x = SensitivityMult, y = AllMeatPerc_base, fill = Parameter)) +
   geom_bar(stat="identity") +
